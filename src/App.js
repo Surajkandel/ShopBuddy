@@ -1,14 +1,13 @@
 
 import './App.css';
 import './index.css'
+import { Outlet } from 'react-router-dom';
 
 function App() {
   return (
-  <div >
-<h1 className="text-5xl font-bold text-red-500">Tailwind Works!</h1>
-
-
-  </div>
+  <>
+    <Outlet/>
+  </>
   
   );
 }
