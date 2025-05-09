@@ -1,4 +1,5 @@
-
+// npm run tailwind:watch
+// npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --watch
 import './index.css';
 import './App.css';
 import { Outlet } from 'react-router-dom';
