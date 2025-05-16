@@ -3,15 +3,17 @@ import { FaSearch } from "react-icons/fa";
 import { FaRegUserCircle } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 
-import { Link } from 'react-router-dom'
+import { Link, Links } from 'react-router-dom'
 
 const Header = () => {
     return (
-        <header className='h-16 shadow-md'>
+        <header className='h-16 shadow-md bg-white'>
 
             <div className="h-full container mx-auto flex items-center px-4 justify-between">
-                <div className=" bg-blue-500  ">
-                    <img src="logo.jpg" alt="ShopBuddy Logo" />
+                <div className="bg-blue-500">
+                    <Link to="/">
+                        <img src="logo.jpg" alt="ShopBuddy Logo" />
+                    </Link>
                 </div>
 
                 <div className="hidden lg:flex items-center">
@@ -23,24 +25,26 @@ const Header = () => {
                 </div>
 
                 <div className="flex items-center gap-6">
-                    
+
                     <FaRegUserCircle className='text-2xl ' />
-                    
+
 
                     <div className="relative inline-block">
                         <FiShoppingCart className="text-2xl" />
                         <div className="absolute -top-3 -right-3 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center z-10">
-                            <p className="text-xs">5</p>
+                            <p className="text-xs">99</p>
                         </div>
                     </div>
 
                     <div className='ml-3'>
+                        <Link to = {"/login"}>
                         <button className='px-3 py-1 rounded-full text-white bg-blue-500 hover:bg-blue-700'>Login</button>
+                        </Link>
                     </div>
                 </div>
 
             </div>
-                
+
 
         </header>
     )
