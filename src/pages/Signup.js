@@ -1,8 +1,12 @@
-import { Link } from 'react-router-dom';
+import {  Link, useNavigate } from 'react-router-dom';
 import userIcon from '../assest/signin.png'
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaRegEye } from "react-icons/fa6";
 import { useState } from 'react';
+import summaryApi from '../common';
+import { toast } from 'react-toastify';
+
+
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -11,8 +15,10 @@ const Signup = () => {
     name: "",
     email: "",
     password: "",
-    confirm_password : ""
+    confirm_password: ""
   })
+
+  const navigate = useNavigate()
 
   const handleOnChange = (e) => {
     const { name, value } = e.target
@@ -26,8 +32,42 @@ const Signup = () => {
 
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (data.password === data.confirm_password) {
+
+      console.log("summaryApi.signup.url ::", summaryApi.signup.url)
+
+
+      const dataResponce = await fetch(summaryApi.signup.url, {
+        method: summaryApi.signup.method,
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify(data)
+
+        
+      })
+
+      const dataApi = await dataResponce.json()
+      
+      if(dataApi.success){
+        toast.success(dataApi.message)
+        navigate('/login')
+
+      }
+      if(dataApi.error){
+        toast.error(dataApi.message)
+
+      }
+      
+
+    } else {
+      console.log("password and confirm password are not same")
+    }
+
+    
   }
 
   console.log("data is ", data)
@@ -55,8 +95,8 @@ const Signup = () => {
               type="text"
               placeholder="Enter your name"
               name='name'
-                value={data.name}
-                onChange={handleOnChange}
+              value={data.name}
+              onChange={handleOnChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -68,8 +108,8 @@ const Signup = () => {
               type="email"
               placeholder="Enter email"
               name='email'
-                value={data.email}
-                onChange={handleOnChange}
+              value={data.email}
+              onChange={handleOnChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -108,7 +148,7 @@ const Signup = () => {
             <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
             <div className='flex items-center border rounded-md'>
               <input
-                type= {showconfirmPassword ? "text" : "password"}
+                type={showconfirmPassword ? "text" : "password"}
                 placeholder="Confirm password"
                 name='confirm_password'
                 value={data.confirm_password}
