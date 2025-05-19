@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
 import loginIcon from '../assest/signin.png'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaRegEye } from "react-icons/fa6";
+import summaryApi from '../common';
+import { toast } from 'react-toastify';
+
 
 
 const Login = () => {
@@ -12,25 +15,50 @@ const Login = () => {
     password: ""
   })
 
-  const handleOnChange = (e) =>{
-    const {name, value} = e.target
+  const handleOnChange = (e) => {
+    const { name, value } = e.target
     setData((preve) => {
-      return{
+      return {
         ...preve,
-        [name] : value
+        [name]: value
       }
     })
 
-   
+
+  }
+  const navigate = useNavigate()
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    try {
+      const dataResponse = await fetch(summaryApi.signin.url, {
+        method: summaryApi.signin.method,
+        credentials: 'include',
+        headers: {
+          "content-type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
+
+      const dataApi = await dataResponse.json()
+
+      if (dataApi.success) {
+        toast.success(dataApi.message)
+        navigate('/')
+      }
+      if (dataApi.error) {
+        toast.error(dataApi.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
-   const handleSubmit = (e) =>{
-      e.preventDefault()
-    }
+  console.log("data login ", data)
 
-    console.log("data is ", data)
 
-    
   return (
     <section id="login" className="bg-gray-50 py-12">
       <div className="max-w-md mx-auto mt-8 bg-white p-8 rounded-lg shadow-md border border-blue-200">
