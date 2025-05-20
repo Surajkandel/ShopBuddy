@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import loginIcon from '../assest/signin.png'
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaRegEye } from "react-icons/fa6";
 import summaryApi from '../common';
 import { toast } from 'react-toastify';
+import Context from '../context';
 
 
 
@@ -27,6 +28,9 @@ const Login = () => {
 
   }
   const navigate = useNavigate()
+  const {fetchUserDetails} = useContext(Context)
+
+  
 
 
   const handleSubmit = async (e) => {
@@ -47,6 +51,7 @@ const Login = () => {
       if (dataApi.success) {
         toast.success(dataApi.message)
         navigate('/')
+        fetchUserDetails()
       }
       if (dataApi.error) {
         toast.error(dataApi.message)
