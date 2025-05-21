@@ -2,10 +2,13 @@ import React from 'react'
 import { FaSearch } from "react-icons/fa";
 import { FaRegUserCircle } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
+import { useSelector } from 'react-redux';
 
 import { Link, Links } from 'react-router-dom'
 
 const Header = () => {
+    const user = useSelector(state => state?.user?.user)
+    console.log("user header", user)
     return (
         <header className='h-16 shadow-md bg-white'>
 

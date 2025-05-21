@@ -1,8 +1,8 @@
-import {  Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import userIcon from '../assest/signin.png'
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaRegEye } from "react-icons/fa6";
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import summaryApi from '../common';
 import { toast } from 'react-toastify';
 
@@ -19,6 +19,7 @@ const Signup = () => {
   })
 
   const navigate = useNavigate()
+  const fileInputRef = useRef(null);
 
   const handleOnChange = (e) => {
     const { name, value } = e.target
@@ -31,6 +32,27 @@ const Signup = () => {
 
 
   }
+
+  const handleUserIconClick = () => {
+    fileInputRef.current.click();
+  };
+
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Handle the file upload here (e.g., display preview, upload to server)
+      console.log("Selected file:", file);
+
+      // Optional: Create a preview URL for the image
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        // You can use event.target.result as the image src
+        // Update your user icon state if needed
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -47,27 +69,27 @@ const Signup = () => {
         },
         body: JSON.stringify(data)
 
-        
+
       })
 
       const dataApi = await dataResponce.json()
-      
-      if(dataApi.success){
+
+      if (dataApi.success) {
         toast.success(dataApi.message)
         navigate('/login')
 
       }
-      if(dataApi.error){
+      if (dataApi.error) {
         toast.error(dataApi.message)
 
       }
-      
+
 
     } else {
       console.log("password and confirm password are not same")
     }
 
-    
+
   }
 
   console.log("data is ", data)
@@ -75,12 +97,21 @@ const Signup = () => {
   return (
     <section id="signup" className="bg-gray-50 py-12">
       <div className="max-w-md mx-auto mt-8 bg-white p-8 rounded-lg shadow-md border border-blue-200">
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept="image/*"
+          className="hidden"
+        />
+
         {/* User Icon (clickable) */}
-        <div className="flex justify-center mb-4 cursor-pointer">
+        <div className="flex justify-center mb-4 cursor-pointer" onClick={handleUserIconClick}>
           <img
             src={userIcon}
             alt="User"
-            className="h-16 w-16 hover:opacity-80 transition-opacity"
+            className="h-16 w-16 hover:opacity-80 transition-opacity rounded-full object-cover"
           />
         </div>
 
