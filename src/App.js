@@ -31,7 +31,7 @@ function App() {
 
     }
 
-    console.log("data-user", dataResponce)
+    // console.log("data-user", dataResponce)
 
   }
 

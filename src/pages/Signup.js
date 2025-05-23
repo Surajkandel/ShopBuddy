@@ -59,7 +59,7 @@ const Signup = () => {
 
     if (data.password === data.confirm_password) {
 
-      console.log("summaryApi.signup.url ::", summaryApi.signup.url)
+      // console.log("summaryApi.signup.url ::", summaryApi.signup.url)
 
 
       const dataResponce = await fetch(summaryApi.signup.url, {
@@ -92,7 +92,7 @@ const Signup = () => {
 
   }
 
-  console.log("data is ", data)
+  // console.log("data is ", data)
 
   return (
     <section id="signup" className="bg-gray-50 py-12">

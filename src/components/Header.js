@@ -12,7 +12,7 @@ import { setUserDetails } from '../store/userSlice';
 
 const Header = () => {
     const user = useSelector(state => state?.user?.user)
-    console.log("user header", user)
+    // console.log("user header", user)
 
     const dispatch = useDispatch()
 
@@ -54,7 +54,16 @@ const Header = () => {
 
                 <div className="flex items-center gap-6">
 
-                    <FaRegUserCircle className='text-2xl ' />
+                    
+                        <div className=''>
+                            <Link to = "/admin-pannel">
+
+                        <FaRegUserCircle className='text-2xl cursor-pointer ' />
+                        </Link>
+                    </div>
+                    
+                    
+                    
 
 
                     <div className="relative inline-block">
