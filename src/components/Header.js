@@ -56,7 +56,7 @@ const Header = () => {
 
                     
                         <div className=''>
-                            <Link to = "/admin-pannel">
+                            <Link to = "./update-details">
 
                         <FaRegUserCircle className='text-2xl cursor-pointer ' />
                         </Link>

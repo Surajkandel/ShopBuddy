@@ -86,7 +86,7 @@ const Signup = () => {
 
 
     } else {
-      console.log("password and confirm password are not same")
+      toast.error("password and confirm password are not same")
     }
 
 

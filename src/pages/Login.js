@@ -13,7 +13,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [data, setData] = useState({
     email: "",
-    password: ""
+    password: "",
+    role: ""
   })
 
   const handleOnChange = (e) => {
@@ -47,10 +48,23 @@ const Login = () => {
       })
 
       const dataApi = await dataResponse.json()
+      const userRole =dataApi.data?.role
 
       if (dataApi.success) {
         toast.success(dataApi.message)
-        navigate('/')
+        // Role-based navigation
+        if (userRole === 'ADMIN') {
+          navigate('/admin-pannel');
+        } else if (userRole === 'SELLER') {
+          navigate('/seller-pannel');
+        } else if(userRole === "GENERAL"){
+          navigate('/');
+        }
+        else{
+
+          
+          
+        }
         fetchUserDetails()
       }
       if (dataApi.error) {

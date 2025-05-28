@@ -1,4 +1,4 @@
-import {createBrowserRouter} from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import App from '../App'
 import Home from '../pages/Home'
 import Login from '../pages/Login'
@@ -9,45 +9,75 @@ import AllUsers from '../pages/AllUsers'
 import PendingSellers from '../pages/PendingSellers'
 import AllProducts from '../pages/AllProducts'
 
+import UpdateUserDetails from '../pages/UpdateUserDetails'
+import UserPannel from '../pages/UserPannel'
+import SellerPannel from '../pages/SellerPannel'
+
 
 
 
 const router = createBrowserRouter([
     {
-        path : '/',
-        element : <App/>,
-        children : [
+        path: '/',
+        element: <App />,
+        children: [
             {
-                path : "",
-                element : <Home/>
+                path: "",
+                element: <Home />
             },
             {
-                path : "login",
-                element : <Login/>
+                path: "login",
+                element: <Login />
             },
             {
-                path : "signup",
-                element : <Signup/>
+                path: "signup",
+                element: <Signup />
             },
             {
-                path : "forget-password",
-                element : <Forgetpassword/>
+                path: "forget-password",
+                element: <Forgetpassword />
             },
             {
-                path : "admin-pannel",
-                element : <AdminPannel/>,
-                children :[
+                path: "admin-pannel",
+                element: <AdminPannel />,
+                children: [
                     {
                         path: "all-users",
-                        element: <AllUsers/>
+                        element: <AllUsers />
                     },
                     {
                         path: "all-products",
-                        element: <AllProducts/>
+                        element: <AllProducts />
                     },
                     {
                         path: "pending-sellers",
-                        element: <PendingSellers/>
+                        element: <PendingSellers />
+                    }
+                ]
+            },
+            {
+                path: "seller-pannel",
+                element: <SellerPannel />,
+                children: [
+                    {
+                        path: "update-details",
+                        element: <UpdateUserDetails/>
+
+                    },
+                    {
+                        path: "all-products",
+                        element: <AllProducts />
+                    }
+                ]
+            },
+            {
+                path: "user-pannel",
+                element: <UserPannel />,
+                children: [
+                    {
+                        path: "update-details",
+                        element: <UpdateUserDetails/>
+
                     }
                 ]
             }

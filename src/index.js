@@ -1,3 +1,6 @@
+// npm run tailwind:watch
+
+import './styles/tailwind.css';
 import './styles/output.css';
 import './index.css';
 import React from 'react';

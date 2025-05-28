@@ -40,10 +40,11 @@ const AllUsers = () => {
             <th>S.N</th>
             <th>Full Name</th>
             <th>Email</th>
+            <th>Create date</th>
+            <th>Role</th>
             <th>Status</th>
-            <th>Action</th>
-            {/* <th>Create date</th> */}
-            <th>view</th>
+            <th>View</th>
+            
           </tr>
         </thead>
         <tbody>
@@ -54,8 +55,12 @@ const AllUsers = () => {
                   <td>{index+=1}</td>
                   <td>{el?.name}</td>
                   <td>{el?.email}</td>
-                  {/* <td>{moment(el?.createdAt).format('ll')}</td> */}
-                  <td>View</td>
+                  <td>{moment(el?.createdAt).format('ll')}</td>
+                  <td>{el?.role}</td>
+                  <td>{el?.status}</td>
+                  <td>
+                    
+                  </td>
                 </tr>
               )
             })

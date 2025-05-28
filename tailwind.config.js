@@ -7,9 +7,4 @@ module.exports = {
     extend: {},
   },
   plugins: [],
-  safelist: [
-    'bg-red-500',
-    'text-3xl',
-    // Add other problematic classes here
-  ],
 }
