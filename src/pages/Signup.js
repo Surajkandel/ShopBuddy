@@ -5,6 +5,7 @@ import { FaRegEye } from "react-icons/fa6";
 import { useRef, useState } from 'react';
 import summaryApi from '../common';
 import { toast } from 'react-toastify';
+import imageToBase64 from '../helpers/imageToBase64';
 
 
 
@@ -15,7 +16,8 @@ const Signup = () => {
     name: "",
     email: "",
     password: "",
-    confirm_password: ""
+    confirm_password: "",
+    profilePic: ""
   })
 
   const navigate = useNavigate()
@@ -38,19 +40,20 @@ const Signup = () => {
   };
 
 
-  const handleFileChange = (e) => {
+  const handleUploadProfilePic = async(e) => {
     const file = e.target.files[0];
     if (file) {
-      // Handle the file upload here (e.g., display preview, upload to server)
-      console.log("Selected file:", file);
+      const imagePic = await imageToBase64(file)
+      
+      setData((preve)=>{
+        return{
+          ...preve,
+          profilePic: imagePic
+      }
+      })
 
-      // Optional: Create a preview URL for the image
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        // You can use event.target.result as the image src
-        // Update your user icon state if needed
-      };
-      reader.readAsDataURL(file);
+      
+      
     }
   };
 
@@ -101,7 +104,7 @@ const Signup = () => {
         <input
           type="file"
           ref={fileInputRef}
-          onChange={handleFileChange}
+          onChange={handleUploadProfilePic}
           accept="image/*"
           className="hidden"
         />
@@ -109,7 +112,7 @@ const Signup = () => {
         {/* User Icon (clickable) */}
         <div className="flex justify-center mb-4 cursor-pointer" onClick={handleUserIconClick}>
           <img
-            src={userIcon}
+            src={data.profilePic || userIcon}
             alt="User"
             className="h-16 w-16 hover:opacity-80 transition-opacity rounded-full object-cover"
           />
