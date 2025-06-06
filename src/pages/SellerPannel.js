@@ -27,8 +27,8 @@ const SellerPannel = () => {
             </div>
 
             {/* Main Content */}
-            <div className='flex-1 p-8'>
-                <div className='bg-white rounded-lg shadow-md p-6'>
+            <div className='flex-1 p-4'>
+                <div className=' '>
                     <Outlet />
                 </div>
             </div>

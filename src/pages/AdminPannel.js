@@ -5,15 +5,20 @@ import ROLE from '../common/role'
 
 const AdminPannel = () => {
     const user = useSelector(state => state?.user?.user)
+    const isLoading = useSelector(state => state?.user?.isLoading);
     const navigate = useNavigate()
     console.log("role ", ROLE.ADMIN)
     console.log("role GIE ", user?.role)
 
-    useEffect(()=>{
-        if(user?.role != ROLE.ADMIN){
-            navigate("/")
+     useEffect(() => {
+        if (!isLoading && user) {
+            if (user.role !== ROLE.ADMIN) {
+                navigate("/");
+            }
         }
-    },[user])
+    }, [user, isLoading, navigate])
+
+    
 
     return (
         <div className='flex min-h-screen bg-gray-100'>

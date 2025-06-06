@@ -4,6 +4,8 @@ import { MdCloudUpload } from "react-icons/md";
 import productCategory from '../helpers/productCategory';
 import uploadImage from '../helpers/uploadImage';
 import Displayimage from './Displayimage';
+import summaryApi from '../common';
+import { toast } from 'react-toastify';
 
 const AddProduct = ({ onClose }) => {
   const [data, setData] = useState({
@@ -46,8 +48,8 @@ const AddProduct = ({ onClose }) => {
     }
   };
 
-  
 
+  
   const handleUploadProduct = async (e) => {
     if (!e.target.files || e.target.files.length === 0) {
       console.error("No files selected");
@@ -90,11 +92,27 @@ const AddProduct = ({ onClose }) => {
 
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Product Data:', data);
-    // Add your submission logic here
-    onClose(); // Close the modal after submission
+    const response = await fetch(summaryApi.addProduct.url, {
+      method: summaryApi.addProduct.method,
+      credentials: 'include',
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+
+    const responseData = await response.json()
+    if (responseData.success) {
+      toast.success(responseData?.message)
+      onClose();
+
+    }
+    if (responseData.error) {
+      toast.error(responseData?.message)
+    }
   };
 
   return (
@@ -122,7 +140,7 @@ const AddProduct = ({ onClose }) => {
               value={data.productName}
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
-            // required
+            required
             />
           </div>
 
@@ -135,7 +153,7 @@ const AddProduct = ({ onClose }) => {
               value={data.brandName}
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
-            // required
+            required
             />
           </div>
 
@@ -147,7 +165,7 @@ const AddProduct = ({ onClose }) => {
               value={data.category}
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
-            // required
+            required
             >
               <option value="">Select Category</option>
               {productCategory.map((category) => (
@@ -243,7 +261,7 @@ const AddProduct = ({ onClose }) => {
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
               rows="2"
-            // required
+            required
             />
           </div>
 
@@ -257,7 +275,7 @@ const AddProduct = ({ onClose }) => {
                 value={data.price}
                 onChange={handleChange}
                 className="w-full p-2 border rounded bg-slate-100"
-              // required
+              required
               />
             </div>
 
@@ -270,7 +288,7 @@ const AddProduct = ({ onClose }) => {
                 value={data.selling_price}
                 onChange={handleChange}
                 className="w-full p-2 border rounded bg-slate-100"
-              // required
+              required
               />
             </div>
           </div>
@@ -284,7 +302,7 @@ const AddProduct = ({ onClose }) => {
               value={data.stock}
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
-            // required
+            required
             />
           </div>
 
