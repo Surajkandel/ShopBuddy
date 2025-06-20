@@ -7,7 +7,8 @@ import Displayimage from './Displayimage';
 import summaryApi from '../common';
 import { toast } from 'react-toastify';
 
-const AddProduct = ({ onClose }) => {
+const AddProduct = ({ onClose, productData }) => {
+
   const [data, setData] = useState({
     productName: '',
     brandName: '',
@@ -26,6 +27,24 @@ const AddProduct = ({ onClose }) => {
   const [fullScreenImage, setFullScreenImage] = useState('')
 
   const [subcategories, setSubcategories] = useState([]);
+
+
+  useEffect(() => {
+    if (productData) {
+      setData({
+        productName: productData?.productName || '',
+        brandName: productData?.brandName || '',
+        category: productData?.category || '',
+        subcategory: productData?.subcategory || '',
+        productImage: productData?.productImage || [],
+        description: productData?.description || '',
+        price: productData?.price || '',
+        selling_price: productData?.selling_price || '',
+        stock: productData?.stock || ''
+      });
+    }
+  }, [productData]);
+
 
   // Update subcategories when main category changes
   useEffect(() => {
@@ -49,7 +68,7 @@ const AddProduct = ({ onClose }) => {
   };
 
 
-  
+
   const handleUploadProduct = async (e) => {
     if (!e.target.files || e.target.files.length === 0) {
       console.error("No files selected");
@@ -92,35 +111,63 @@ const AddProduct = ({ onClose }) => {
 
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('Product Data:', data);
-    const response = await fetch(summaryApi.addProduct.url, {
-      method: summaryApi.addProduct.method,
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const isEditing = Boolean(productData?._id);
+
+  const apiUrl = isEditing
+    ? summaryApi.updateProduct.url  // ← correct for your backend
+    : summaryApi.addProduct.url;
+
+  const apiMethod = isEditing
+    ? summaryApi.updateProduct.method
+    : summaryApi.addProduct.method;
+
+  // If editing, include _id in the body
+  const bodyData = isEditing
+    ? { ...data, _id: productData._id }
+    : data;
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: apiMethod,
       credentials: 'include',
       headers: {
         "content-type": "application/json"
       },
-      body: JSON.stringify(data)
-    })
+      body: JSON.stringify(bodyData)
+    });
 
-    const responseData = await response.json()
-    if (responseData.success) {
-      toast.success(responseData?.message)
-      onClose();
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const responseData = await response.json();
 
+      if (responseData.success) {
+        toast.success(responseData?.message || (isEditing ? "Product updated" : "Product added"));
+        onClose();
+      } else {
+        toast.error(responseData?.message || "Something went wrong");
+      }
+    } else {
+      throw new Error("Unexpected response format");
     }
-    if (responseData.error) {
-      toast.error(responseData?.message)
-    }
-  };
+
+  } catch (error) {
+    console.error("Error submitting product:", error);
+    toast.error("Server error");
+  }
+};
+
 
   return (
     <div className='fixed flex bg-slate-300 bg-opacity-20 h-full w-full top-0 left-0 right-0 bottom-0 justify-center items-center z-50'>
       <div className='bg-white p-6 rounded-lg w-full max-w-lg max-h-[90vh] overflow-y-auto'>
 
         <div className='flex items-center mb-4'>
-          <h2 className='font-bold text-xl'>Add Product</h2>
+          <h2 className='font-bold text-xl'>
+            {productData ? 'Edit Product' : 'Add Product'}
+          </h2>
           <button
             className='ml-auto text-2xl hover:text-blue-600 transition-colors'
             onClick={onClose}
@@ -140,7 +187,7 @@ const AddProduct = ({ onClose }) => {
               value={data.productName}
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
-            required
+              required
             />
           </div>
 
@@ -153,7 +200,7 @@ const AddProduct = ({ onClose }) => {
               value={data.brandName}
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
-            required
+              required
             />
           </div>
 
@@ -165,7 +212,7 @@ const AddProduct = ({ onClose }) => {
               value={data.category}
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
-            required
+              required
             >
               <option value="">Select Category</option>
               {productCategory.map((category) => (
@@ -261,7 +308,7 @@ const AddProduct = ({ onClose }) => {
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
               rows="2"
-            required
+              required
             />
           </div>
 
@@ -275,7 +322,7 @@ const AddProduct = ({ onClose }) => {
                 value={data.price}
                 onChange={handleChange}
                 className="w-full p-2 border rounded bg-slate-100"
-              required
+                required
               />
             </div>
 
@@ -288,7 +335,7 @@ const AddProduct = ({ onClose }) => {
                 value={data.selling_price}
                 onChange={handleChange}
                 className="w-full p-2 border rounded bg-slate-100"
-              required
+                required
               />
             </div>
           </div>
@@ -302,7 +349,7 @@ const AddProduct = ({ onClose }) => {
               value={data.stock}
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
-            required
+              required
             />
           </div>
 
@@ -319,7 +366,7 @@ const AddProduct = ({ onClose }) => {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              Add Product
+              {productData ? 'Update Product' : 'Add Product'}
             </button>
           </div>
         </form>
