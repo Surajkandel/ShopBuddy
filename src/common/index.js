@@ -38,6 +38,11 @@ const summaryApi = {
         url : `${backendDomain}/api/get-product`,
         method: "get"
 
+    },
+    categoryProduct : {
+        url : `${backendDomain}/api/get-CategoryProduct`,
+        method : "get"
+
     }
 }
 

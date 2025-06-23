@@ -7,9 +7,16 @@ const categories = [
       { id: 101, label: 'AirPods', value: 'airpods' },
       { id: 102, label: 'Cameras', value: 'cameras' },
       { id: 103, label: 'Earphones', value: 'earphones' },
-      { id: 104, label: 'Mice', value: 'mice' },
+      { id: 104, label: 'Mouse', value: 'mouse' },
       { id: 105, label: 'Keyboards', value: 'keyboards' },
-      { id: 106, label: 'Smart Watches', value: 'smart_watches' }
+      { id: 106, label: 'Smart Watches', value: 'smart_watches' },
+      { id: 107, label: 'Mobiles', value: 'mobiles' },
+      { id: 108, label: 'Printers', value: 'printers' },
+      { id: 109, label: 'Processors', value: 'processors' },
+      { id: 110, label: 'Refrigerators', value: 'refrigerators' },
+      { id: 111, label: 'Speakers', value: 'speakers' },
+      { id: 112, label: 'Televisions', value: 'televisions' },
+      { id: 113, label: 'Trimmers', value: 'trimmers' }
     ]
   },
   {

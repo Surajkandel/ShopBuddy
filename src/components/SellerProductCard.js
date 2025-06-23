@@ -1,6 +1,7 @@
 // /components/SellerProductCard.jsx
 import React from 'react'
 import SellerEditProduct from './SellerEditProduct'
+import displayNEPCurrency from '../helpers/displayCurrency'
 
 const SellerProductCard = ({ product, onEdit }) => {
   return (
@@ -31,7 +32,12 @@ const SellerProductCard = ({ product, onEdit }) => {
           </h3>
           <div className="mt-auto">
             <p className="text-gray-600 font-medium">
-              ${product?.price?.toFixed(2) || '0.00'}
+              <div>
+                {
+                  displayNEPCurrency(product?.price)
+                }
+              </div>
+             
             </p>
             {product?.stock !== undefined && (
               <p className={`text-sm mt-1 ${

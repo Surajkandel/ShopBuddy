@@ -54,7 +54,7 @@ const AllProducts = () => {
         </div>
 
         {/* User's products show */}
-        <div className='flex gap-2 flex-wrap mt-4'>
+        <div className='flex gap-2 flex-wrap mt-4  h-[calc(100vh-200px)] overflow-y-scroll'>
           {userProducts.length > 0 ? (
             userProducts.map((product) => (
               <SellerProductCard 

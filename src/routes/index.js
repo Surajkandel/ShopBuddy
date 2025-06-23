@@ -12,6 +12,7 @@ import AllProducts from '../pages/AllProducts'
 import UpdateUserDetails from '../pages/UpdateUserDetails'
 import UserPannel from '../pages/UserPannel'
 import SellerPannel from '../pages/SellerPannel'
+import CategoryProduct from '../pages/CategoryProduct'
 
 
 
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
                         element: <PendingSellers />
                     }
                 ]
+            },
+            {
+                path: "product-category/:categoryName",
+                element: <CategoryProduct/>
             },
             {
                 path: "seller-pannel",
