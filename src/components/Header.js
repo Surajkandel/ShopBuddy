@@ -4,13 +4,14 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Link, useNavigate } from 'react-router-dom'
+import { Link,  useNavigate } from 'react-router-dom'
 import summaryApi from '../common';
 import { toast } from 'react-toastify';
 import { setUserDetails } from '../store/userSlice';
 
 
 const Header = () => {
+    const navigate = useNavigate()
     const user = useSelector(state => state?.user?.user)
     // console.log("user header", user)
 
@@ -25,6 +26,7 @@ const Header = () => {
         if (data.success) {
             toast.success(data.message)
             dispatch(setUserDetails(null))
+            navigate('/', { replace: true })
             
         }
         if (data.error) {

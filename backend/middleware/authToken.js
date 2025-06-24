@@ -1,47 +1,37 @@
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+
 async function authToken(req, res, next) {
-    try {
+  try {
+    const token = req.cookies?.token;
 
-        const token = req.cookies?.token
-
-        if (!token) {
-            return res.status(200).json({
-                message: "user is not login",
-                error: true,
-                success: false
-            })
-        }
-
-
-        // console.log("token ", token)
-
-        jwt.verify(token, process.env.TOKEN_SECRET_KEY, function (err, decoded) {
-            // console.log(err)
-            // console.log("decoded", decoded)
-
-            if (err) {
-                console.log("error auth ", err)
-            }
-
-            req.userId = decoded?._id
-
-            next()
-        });
-
-
-
-
-
-    } catch(err) {
-        res.status(400).json({
-            message: err.message || err,
-            data: [],
-            error: true,
-            success: false
-
-        })
-
+    if (!token) {
+      return res.status(401).json({
+        message: "User is not logged in",
+        error: true,
+        success: false,
+      });
     }
+
+    jwt.verify(token, process.env.TOKEN_SECRET_KEY, (err, decoded) => {
+      if (err) {
+        console.log("JWT verification error:", err.message);
+        return res.status(403).json({
+          message: "Invalid or expired token",
+          error: true,
+          success: false,
+        });
+      }
+
+      req.userId = decoded?._id;
+      next(); 
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message || "Authentication error",
+      error: true,
+      success: false,
+    });
+  }
 }
 
-module.exports = authToken
+module.exports = authToken;
