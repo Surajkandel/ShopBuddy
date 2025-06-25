@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import SummaryApi from '../common';
-import { Link } from 'react-router-dom'; // ✅ Make sure this is imported
+import { Link } from 'react-router-dom';
+
 
 const CategoryWiseProduct = () => {
   const [categoryProduct, setCategoryProduct] = useState([]);

@@ -4,10 +4,11 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Link,  useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import summaryApi from '../common';
 import { toast } from 'react-toastify';
 import { setUserDetails } from '../store/userSlice';
+import logo from '../assest/logo.jpg';
 
 
 const Header = () => {
@@ -27,7 +28,7 @@ const Header = () => {
             toast.success(data.message)
             dispatch(setUserDetails(null))
             navigate('/', { replace: true })
-            
+
         }
         if (data.error) {
             toast.error(data.message)
@@ -40,11 +41,16 @@ const Header = () => {
         <header className='h-16 shadow-md bg-white'>
 
             <div className="h-full container mx-auto flex items-center px-4 justify-between">
-                <div className="bg-blue-500">
-                    <Link to="/">
-                        <img src="logo.jpg" alt="ShopBuddy Logo" />
+                <div className="flex items-center h-full">
+                    <Link to="/" className="inline-block">
+                        <img
+                            src={logo}
+                            alt="ShopBuddy Logo"
+                            className="h-16 w-auto object-contain"
+                        />
                     </Link>
                 </div>
+
 
                 <div className="hidden lg:flex items-center">
                     <input type="text" placeholder='Search here' className='w-full h-10 outline-none  border rounded-l-full pl-3' />
@@ -56,16 +62,16 @@ const Header = () => {
 
                 <div className="flex items-center gap-6">
 
-                    
-                        <div className=''>
-                            <Link to = "./update-details">
 
-                        <FaRegUserCircle className='text-2xl cursor-pointer ' />
+                    <div className=''>
+                        <Link to="./update-details">
+
+                            <FaRegUserCircle className='text-2xl cursor-pointer ' />
                         </Link>
                     </div>
-                    
-                    
-                    
+
+
+
 
 
                     <div className="relative inline-block">

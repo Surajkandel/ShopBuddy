@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
-import image1 from '../assest/banner/img1.webp';
-import image2 from '../assest/banner/img2.webp';
-import image3 from '../assest/banner/img3.jpg';
-import image4 from '../assest/banner/img4.jpg';
-import image5 from '../assest/banner/img5.webp';
+import image1 from '../assest/banner/image1.jpg';
+// import image2 from '../assest/banner/img2.webp';
+import image3 from '../assest/banner/image2.jpg';
+import image4 from '../assest/banner/image4.jpg';
+import image5 from '../assest/banner/image3.jpg';
 
 const BannerProduct = () => {
-  const desktopImages = [image1, image2, image3, image4, image5];
+  const desktopImages = [image1, image3, image5];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goToNext = useCallback(() => {

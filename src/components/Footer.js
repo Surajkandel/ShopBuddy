@@ -1,11 +1,16 @@
-import React from 'react'
+import React from 'react';
+import { FaFacebookF, FaTwitter, FaInstagram } from 'react-icons/fa';
 
 const Footer = () => {
   return (
-    <div className="text-xl">
-      FOoter
-    </div>
-  )
-}
+    <footer className="">
+        
 
-export default Footer
+      <div className="text-center text-sm text-gray-500 border-t py-3">
+        © {new Date().getFullYear()} ShopBuddy. All rights reserved.
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
