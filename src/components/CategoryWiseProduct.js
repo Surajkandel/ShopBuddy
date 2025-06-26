@@ -49,7 +49,7 @@ const CategoryWiseProduct = () => {
           </p>
         </div>
       ) : (
-        <div className="flex items-center gap-3 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 py-2">
+        <div className="flex items-center gap-3 overflow-x-auto py-2 scrollbar-none">
           {categoryProduct.map((product, index) => {
             const subcategory = product?.subcategory || product?.category;
             const path = `/product-category/${subcategory}`; // ✅ Dynamic route

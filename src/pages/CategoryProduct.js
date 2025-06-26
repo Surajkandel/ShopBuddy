@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import summaryApi from '../common';
 import displayNEPCurrency from '../helpers/displayCurrency';
 
-const CategoryProduct = () => {
+const CategoryProduct = ({ subcategory: propSubcategory }) => {
   const { categoryName } = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const subcategory = propSubcategory || categoryName;
+
   const fetchCategoryProducts = async () => {
+    if (!subcategory) return;
+
     setLoading(true);
     try {
       const response = await fetch(summaryApi.categoryWiseProduct.url, {
@@ -17,7 +21,7 @@ const CategoryProduct = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ subcategory: categoryName }),
+        body: JSON.stringify({ subcategory }),
       });
 
       const data = await response.json();
@@ -38,12 +42,12 @@ const CategoryProduct = () => {
 
   useEffect(() => {
     fetchCategoryProducts();
-  }, [categoryName]);
+  }, [subcategory]);
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-6">
+    <div className="container mx-auto px-2 sm:px-4 py-10">
       <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center text-gray-800">
-        Products in "{categoryName}"
+        Products in "{subcategory}"
       </h2>
 
       {loading ? (
@@ -55,9 +59,10 @@ const CategoryProduct = () => {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
           {products.map((product) => {
-            const discountPercentage = product.price && product.selling_price && product.price > product.selling_price
-              ? Math.round(((product.price - product.selling_price) / product.price * 100))
-              : 0;
+            const discountPercentage =
+              product.price && product.selling_price && product.price > product.selling_price
+                ? Math.round(((product.price - product.selling_price) / product.price) * 100)
+                : 0;
 
             return (
               <div
@@ -83,7 +88,7 @@ const CategoryProduct = () => {
                   <p className="text-xs text-gray-500 mb-2 capitalize">
                     {product.subcategory}
                   </p>
-                  
+
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <p className="text-blue-600 font-bold text-sm">

@@ -1,4 +1,4 @@
-import React, { use } from 'react'
+import React, { use, useContext } from 'react'
 import { FaSearch } from "react-icons/fa";
 import { FaRegUserCircle } from "react-icons/fa";
 import { FiShoppingCart } from "react-icons/fi";
@@ -9,12 +9,15 @@ import summaryApi from '../common';
 import { toast } from 'react-toastify';
 import { setUserDetails } from '../store/userSlice';
 import logo from '../assest/logo.jpg';
+import Context from '../context';
 
 
 const Header = () => {
     const navigate = useNavigate()
     const user = useSelector(state => state?.user?.user)
-    // console.log("user header", user)
+    const context = useContext(Context)
+
+    // console.log("header", context)
 
     const dispatch = useDispatch()
 
@@ -74,12 +77,27 @@ const Header = () => {
 
 
 
-                    <div className="relative inline-block">
-                        <FiShoppingCart className="text-2xl" />
-                        <div className="absolute -top-3 -right-3 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center z-10">
-                            <p className="text-xs">99</p>
-                        </div>
-                    </div>
+                    {
+                        user?._id ? (
+                            
+                            <Link to="/Cart" className="relative inline-block">
+                                <FiShoppingCart className="text-2xl cursor-pointer" />
+                                <div className="absolute -top-3 -right-3 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center z-10">
+                                    <p className="text-xs">{context.cartProductCount}</p>
+                                </div>
+                            </Link>
+                        ) : (
+                    
+                            <div className="relative inline-block opacity-50 cursor-not-allowed">
+                                <FiShoppingCart className="text-2xl" />
+                                <div className="absolute -top-3 -right-3 bg-gray-400 text-white rounded-full w-5 h-5 flex items-center justify-center z-10">
+                                    <p className="text-xs">0</p>
+                                </div>
+                            </div>
+                        )
+                    }
+
+
 
                     <div className='ml-3'>
                         {

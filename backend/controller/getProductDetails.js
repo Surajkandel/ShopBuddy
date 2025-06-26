@@ -14,6 +14,7 @@ const getProductDetails = async (req, res) => {
         }
         res.json({
             data: product,
+            message: "ok",
             success: true,
             error: false
         })

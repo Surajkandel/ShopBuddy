@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import summaryApi from '../common';
 import displayNEPCurrency from '../helpers/displayCurrency';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 import { IoStarOutline, IoStarSharp, IoStarHalfSharp } from 'react-icons/io5';
+import addToCart from '../helpers/addToCart';
+import CategoryWiseProduct from '../components/CategoryWiseProduct';
+import CategoryProduct from './CategoryProduct';
+import Context from '../context';
 
 const ProductDetails = () => {
   const { productId } = useParams();
@@ -11,6 +15,13 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
+  const {  fetchUserAddToCart } = useContext(Context)
+
+  const handleAddToCart = async(e, id)=>{
+    await addToCart(e, id)
+    fetchUserAddToCart()
+
+  }
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -78,11 +89,11 @@ const ProductDetails = () => {
 
           <div className="mb-4 flex items-center gap-3">
             <span className="text-2xl text-blue-600 font-semibold">
-              {displayNEPCurrency(product.selling_price || product.price)}
+              {displayNEPCurrency(product?.selling_price || product?.price)}
             </span>
-            {product.price && product.price > product.selling_price && (
+            {product?.price && product?.price > product?.selling_price && (
               <span className="text-sm line-through text-gray-400">
-                {displayNEPCurrency(product.price)}
+                {displayNEPCurrency(product?.price)}
               </span>
             )}
           </div>
@@ -117,15 +128,25 @@ const ProductDetails = () => {
           </div>
 
           <div className="mt-auto flex gap-4">
-            <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base px-4 py-2 rounded-md transition">
+            <button 
+            onClick={(e)=>handleAddToCart(e,product?._id)}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base px-4 py-2 rounded-md transition"
+            
+            >
               Add to Cart
             </button>
-            <button className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 text-sm sm:text-base px-4 py-2 rounded-md transition">
+            <button className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-100 text-sm sm:text-base px-4 py-2 rounded-md transition">
               Buy Now
             </button>
           </div>
         </div>
       </div>
+
+      {/* <CategoryWiseProduct/> */}
+     {product?.subcategory && (
+  <CategoryProduct subcategory={product.subcategory} />
+)}    
+      
     </div>
   );
 };
