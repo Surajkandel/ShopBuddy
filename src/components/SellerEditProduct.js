@@ -1,4 +1,4 @@
-// /components/SellerEditProduct.jsx
+
 import React from 'react'
 import { MdEdit } from "react-icons/md"
 

@@ -13,6 +13,7 @@ const getProductController = require('../controller/getProduct')
 const updateProductController = require('../controller/updateProduct')
 const getCategoryProduct = require('../controller/getCategoryProduct')
 const getCategoryWiseProduct = require('../controller/getCategoryWiseProduct')
+const getProductDetails = require('../controller/getProductDetails')
 
 router.post('/signup', userSignUpController)
 router.post('/signin', userSignInController)
@@ -28,6 +29,7 @@ router.post("/add-product",authToken, AddProductController)
 router.get("/get-product", getProductController)
 router.post("/update-product",authToken, updateProductController)
 router.get("/get-CategoryProduct",getCategoryProduct)
-router.post("/get-CategoryWiseProduct",getCategoryWiseProduct)
+router.post("/product-by-category", getCategoryWiseProduct);
+router.get("/productdetails/:id",getProductDetails)
 
 module.exports = router

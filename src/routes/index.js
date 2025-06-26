@@ -13,6 +13,7 @@ import UpdateUserDetails from '../pages/UpdateUserDetails'
 import UserPannel from '../pages/UserPannel'
 import SellerPannel from '../pages/SellerPannel'
 import CategoryProduct from '../pages/CategoryProduct'
+import ProductDetails from '../pages/ProductDetails'
 
 
 
@@ -59,6 +60,11 @@ const router = createBrowserRouter([
             {
                 path: "product-category/:categoryName",
                 element: <CategoryProduct/>
+            },
+            {
+                path: "product/:productId",
+                element : <ProductDetails/>
+
             },
             {
                 path: "seller-pannel",

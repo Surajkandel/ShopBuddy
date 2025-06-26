@@ -51,7 +51,8 @@ function App() {
 
         <ToastContainer />
         <Header />
-        <Outlet />
+        <main className='pt-16'></main>
+        <Outlet/>
         <Footer />
 
       </Context.Provider>

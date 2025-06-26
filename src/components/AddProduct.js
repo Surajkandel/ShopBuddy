@@ -48,14 +48,19 @@ const AddProduct = ({ onClose, productData }) => {
 
   // Update subcategories when main category changes
   useEffect(() => {
-    if (data.category) {
-      const selectedCategory = productCategory.find(cat => cat.value === data.category);
-      setSubcategories(selectedCategory?.subcategories || []);
-      setData(prev => ({ ...prev, subcategory: '' })); // Reset subcategory when main category changes
-    } else {
-      setSubcategories([]);
+  if (data.category) {
+    const selectedCategory = productCategory.find(cat => cat.value === data.category);
+    setSubcategories(selectedCategory?.subcategories || []);
+
+    // Only reset subcategory if not editing
+    if (!productData) {
+      setData(prev => ({ ...prev, subcategory: '' }));
     }
-  }, [data.category]);
+  } else {
+    setSubcategories([]);
+  }
+}, [data.category, productData]);
+
 
 
   const handleChange = (e) => {
@@ -232,12 +237,14 @@ const AddProduct = ({ onClose, productData }) => {
               onChange={handleChange}
               className="w-full p-2 border rounded bg-slate-100"
               disabled={!data.category}
+              required
             >
               <option value="">Select Subcategory</option>
               {subcategories.map((subcategory) => (
                 <option key={subcategory.id} value={subcategory.value}>
                   {subcategory.label}
                 </option>
+                
               ))}
             </select>
           </div>

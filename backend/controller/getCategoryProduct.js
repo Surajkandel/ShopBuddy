@@ -2,39 +2,35 @@ const productModel = require("../models/productModel");
 
 const getCategoryProduct = async (req, res) => {
   try {
-    const categories = await productModel.distinct("category");
-    const productByCategory = [];
+    // Get all products at once (more efficient than multiple queries)
+    const allProducts = await productModel.find({
+      subcategory: { $exists: true, $ne: "" }
+    }).select('_id productName productImage category subcategory price selling_price').lean();
 
-    for (const category of categories) {
-      const subcategories = await productModel.distinct("subcategory", { category });
+    // Organize by category and subcategory
+    const categoryMap = new Map();
 
-      // If subcategories exist
-      if (subcategories.length > 0) {
-        for (const subcategory of subcategories) {
-          if (subcategory && subcategory.trim() !== "") {
-            const product = await productModel.findOne({ category, subcategory });
-            if (product) {
-              productByCategory.push(product);
-            }
-          } else {
-            // Fallback if subcategory is empty
-            const fallbackProduct = await productModel.findOne({ category });
-            if (fallbackProduct) {
-              productByCategory.push(fallbackProduct);
-            }
-          }
-        }
-      } else {
-        // No subcategories found, use category directly
-        const fallbackProduct = await productModel.findOne({ category });
-        if (fallbackProduct) {
-          productByCategory.push(fallbackProduct);
-        }
+    allProducts.forEach(product => {
+      if (!categoryMap.has(product.category)) {
+        categoryMap.set(product.category, new Map());
       }
-    }
+      
+      const subcategoryMap = categoryMap.get(product.category);
+      if (!subcategoryMap.has(product.subcategory)) {
+        subcategoryMap.set(product.subcategory, product);
+      }
+    });
+
+    // Convert the map to the required array format
+    const productByCategory = [];
+    categoryMap.forEach((subcategories, category) => {
+      subcategories.forEach((product, subcategory) => {
+        productByCategory.push(product);
+      });
+    });
 
     res.json({
-      message: "Category/Subcategory-wise products fetched",
+      message: "Subcategory-wise products fetched",
       data: productByCategory,
       success: true,
       error: false
