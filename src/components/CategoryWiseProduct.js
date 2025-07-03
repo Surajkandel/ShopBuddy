@@ -13,7 +13,7 @@ const CategoryWiseProduct = () => {
       const response = await fetch(SummaryApi.categoryProduct.url);
       const dataResponse = await response.json();
 
-      // ✅ Filter to keep one product per subcategory or category
+      // Filter to keep one product per subcategory or category
       const uniqueProducts = dataResponse.data.reduce((acc, current) => {
         const subcategory = current?.subcategory || current?.category;
         const exists = acc.find(

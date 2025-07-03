@@ -2,12 +2,12 @@ const addToCartModel = require("../models/cartProduct")
 
 const removeFromCart = async (req, res) => {
     try {
-        const currentUser = req.userId
-        const { productId } = req.body
+        const currentUserId = req.userId
+        const productId = req.body._id
 
-        const deletedProduct = await addToCartModel.findOneAndDelete({
-            userId: currentUser,
-            productId: productId
+        const deletedProduct = await addToCartModel.deleteOne({
+            _id: productId
+            // productId: productId
         })
 
         if (!deletedProduct) {
@@ -20,6 +20,7 @@ const removeFromCart = async (req, res) => {
 
         res.json({
             message: "Item removed from cart",
+            data: deletedProduct,
             success: true,
             error: false
         })

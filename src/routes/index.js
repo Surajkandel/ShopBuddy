@@ -15,6 +15,7 @@ import SellerPannel from '../pages/SellerPannel'
 import CategoryProduct from '../pages/CategoryProduct'
 import ProductDetails from '../pages/ProductDetails'
 import Cart from '../pages/Cart'
+import SearchProduct from '../pages/SearchProduct'
 
 
 
@@ -39,6 +40,11 @@ const router = createBrowserRouter([
             {
                 path: "forget-password",
                 element: <Forgetpassword />
+            },
+            {
+                path: "search",
+                element: <SearchProduct/>
+
             },
             {
                 path: "admin-pannel",

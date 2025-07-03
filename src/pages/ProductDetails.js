@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import summaryApi from '../common';
 import displayNEPCurrency from '../helpers/displayCurrency';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
@@ -16,11 +16,19 @@ const ProductDetails = () => {
   const [error, setError] = useState(null);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const {  fetchUserAddToCart } = useContext(Context)
+  const navigate = useNavigate()
 
   const handleAddToCart = async(e, id)=>{
     await addToCart(e, id)
     fetchUserAddToCart()
+    
 
+  }
+
+  const handleBuyProduct = async(e,id)=>{
+    await addToCart(e, id)
+    fetchUserAddToCart()
+    navigate('/Cart')
   }
 
   useEffect(() => {
@@ -135,7 +143,8 @@ const ProductDetails = () => {
             >
               Add to Cart
             </button>
-            <button className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-100 text-sm sm:text-base px-4 py-2 rounded-md transition">
+            <button className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-100 text-sm sm:text-base px-4 py-2 rounded-md transition"
+            onClick={(e)=>handleBuyProduct(e,product?._id)}>
               Buy Now
             </button>
           </div>

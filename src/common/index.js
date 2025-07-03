@@ -66,15 +66,18 @@ const summaryApi = {
     },
     removeFromCart: {
         url: `${backendDomain}/api/remove-from-cart`,
-        method: 'delete'
+        method: 'post'
     },
     updateCartProduct: {
         url: `${backendDomain}/api/update-cart-product`,
-        method: 'put'
+        method: 'post'
     },
     getCartProducts: {
         url: `${backendDomain}/api/getcartproducts`,
         method: "get"
+    }, searchProduct : {
+        url : `${backendDomain}/api/search`,
+        method : 'get'
     }
 
 

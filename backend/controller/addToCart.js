@@ -6,8 +6,8 @@ const addToCart = async (req, res) => {
     const { productId } = req.body;
     const currentUser = req.userId;
 
-    // Convert productId to ObjectId for query consistency
-    const productObjectId = mongoose.Types.ObjectId(productId);
+   
+    const productObjectId = new mongoose.Types.ObjectId(productId);
 
     const existingItem = await addToCartModel.findOne({
       productId: productObjectId,
@@ -23,7 +23,7 @@ const addToCart = async (req, res) => {
     }
 
     const payload = {
-      productId: productObjectId, // Save as ObjectId
+      productId: productObjectId,
       quantity: 1,
       userId: currentUser,
     };

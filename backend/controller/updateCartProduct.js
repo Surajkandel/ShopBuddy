@@ -3,10 +3,11 @@ const addToCartModel = require("../models/cartProduct");
 
 const updateCartProduct = async (req, res) => {
   try {
-    const currentUser = req.userId;
-    const { productId, quantity } = req.body;
+    const currentUserId = req.userId;
+    const addToCartProductId = req.body._id;
+    const qty = req.body.quantity;
 
-    if (quantity < 1) {
+    if (qty < 1) {
       return res.json({
         message: "Quantity must be at least 1",
         error: true,
@@ -14,26 +15,20 @@ const updateCartProduct = async (req, res) => {
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
+    if (!mongoose.Types.ObjectId.isValid(addToCartProductId)) {
       return res.status(400).json({
-        message: "Invalid productId",
+        message: "Invalid cart product ID",
         error: true,
         success: false,
       });
     }
 
-    const updatedProduct = await addToCartModel.findOneAndUpdate(
-      {
-        userId: currentUser,
-        productId: new mongoose.Types.ObjectId(productId), // Convert properly
-      },
-      {
-        $set: { quantity: quantity },
-      },
-      { new: true }
+    const updatedResult = await addToCartModel.updateOne(
+      { _id: addToCartProductId, userId: currentUserId },
+      { $set: { quantity: qty } }
     );
 
-    if (!updatedProduct) {
+    if (updatedResult.matchedCount === 0) {
       return res.status(404).json({
         message: "Product not found in cart",
         error: true,
@@ -42,15 +37,15 @@ const updateCartProduct = async (req, res) => {
     }
 
     res.json({
-      data: updatedProduct,
+      data: updatedResult,
       message: "Cart updated successfully",
       success: true,
       error: false,
     });
+
   } catch (err) {
-    console.error("Error in updateCartProduct:", err); // Add this for debugging
     res.status(500).json({
-      message: err.message || "Internal Server Error",
+      message: err.message || err,
       error: true,
       success: false,
     });

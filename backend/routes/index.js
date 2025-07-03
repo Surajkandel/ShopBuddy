@@ -18,6 +18,7 @@ const countAddToCartProduct = require('../controller/countAddToCart')
 const addToCartProductView = require('../controller/addToCartProductView')
 const removeFromCart = require('../controller/removeFromCart')
 const updateCartProduct = require('../controller/updateCartProduct')
+const searchProduct = require('../controller/searchProduct')
 
 // User authentication routes
 router.post('/signup', userSignUpController)
@@ -40,7 +41,8 @@ router.get("/productdetails/:id", getProductDetails)
 router.post("/addtocart", authToken, addToCart)
 router.get("/view-add-to-cart-product", authToken, addToCartProductView)
 router.post("/countaddtocartproduct", authToken, countAddToCartProduct)
-router.delete("/remove-from-cart", authToken, removeFromCart)
-router.put("/update-cart-product", authToken, updateCartProduct)
+router.post("/remove-from-cart", authToken, removeFromCart)
+router.post("/update-cart-product", authToken, updateCartProduct)
+router.get("/search", searchProduct)
 
 module.exports = router

@@ -1,229 +1,290 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import displayNEPCurrency from '../helpers/displayCurrency';
-import summaryApi from '../common';
-import { toast } from 'react-toastify';
+import React, { useContext, useEffect, useState } from 'react'
+import summaryApi from '../common'
+import Context from '../context';
 import { FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
+import displayNEPCurrency from '../helpers/displayCurrency';
+import { toast } from 'react-toastify';
 
 const Cart = () => {
-  const [cartProducts, setCartProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false)
+  const context = useContext(Context)
+  const loadingCart = new Array(context.cartProductCount).fill(null)
 
-  const fetchCartProducts = async () => {
+  const fetchData = async () => {
+    setLoading(true)
     try {
-      setLoading(true);
       const response = await fetch(summaryApi.viewAddToCartProduct.url, {
         method: summaryApi.viewAddToCartProduct.method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Send cookie with token
-      });
-
-      const data = await response.json();
-
-      if (data?.success) {
-        setCartProducts(data.data || []);
-      } else {
-        setError(data?.message || 'Failed to fetch cart items');
-      }
-    } catch (err) {
-      setError(err.message || 'Failed to fetch cart items');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRemoveItem = async (productId) => {
-    try {
-      const response = await fetch(summaryApi.removeFromCart.url, {
-        method: summaryApi.removeFromCart.method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
         credentials: 'include',
-        body: JSON.stringify({ productId }),
-      });
+        headers: {
+          "content-type": "application/json"
+        },
+      })
+      
+      const responseData = await response.json()
 
-      const data = await response.json();
-
-      if (data?.success) {
-        toast.success('Item removed from cart');
-        fetchCartProducts(); // Refresh cart
+      if (responseData.success) {
+        setData(responseData.data)
       } else {
-        toast.error(data?.message || 'Failed to remove item');
+        toast.error(responseData.message)
       }
-    } catch (err) {
-      toast.error(err.message || 'Failed to remove item');
+    } catch (error) {
+      toast.error("Failed to fetch cart items")
+    } finally {
+      setLoading(false)
     }
-  };
+  }
 
-  const handleUpdateQuantity = async (productId, newQuantity) => {
-    if (newQuantity < 1) return;
+  useEffect(() => {
+    fetchData()
+  }, [])
 
+  const updateQuantity = async (id, newQty) => {
     try {
       const response = await fetch(summaryApi.updateCartProduct.url, {
         method: summaryApi.updateCartProduct.method,
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
+          'content-type': 'application/json'
         },
-        credentials: 'include',
-        body: JSON.stringify({ productId, quantity: newQuantity }),
-      });
+        body: JSON.stringify({
+          _id: id,
+          quantity: newQty
+        })
+      })
 
-      const data = await response.json();
+      const responseData = await response.json()
 
-      if (data?.success) {
-        fetchCartProducts(); // Refresh cart
+      if (responseData.success) {
+        // Optimistic UI update
+        setData(prevData => 
+          prevData.map(item => 
+            item._id === id ? { ...item, quantity: newQty } : item
+          )
+        )
+        context.fetchUserAddToCart()
+        toast.success("Quantity updated successfully")
       } else {
-        toast.error(data?.message || 'Failed to update quantity');
+        toast.error(responseData.message)
+        fetchData() // Revert to server state if update fails
       }
-    } catch (err) {
-      toast.error(err.message || 'Failed to update quantity');
+    } catch (error) {
+      toast.error("Failed to update quantity")
+      fetchData() // Revert to server state on error
     }
-  };
-
-  useEffect(() => {
-    fetchCartProducts();
-  }, []);
-
-  const calculateTotal = () => {
-    return cartProducts.reduce((total, item) => {
-      return total + (item.productId?.selling_price || item.productId?.price || 0) * item.quantity;
-    }, 0);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <p className="text-red-500 text-lg">{error}</p>
-      </div>
-    );
+  const increaseQty = (id, qty) => {
+    updateQuantity(id, qty + 1)
+  }
+
+  const decreaseQty = (id, qty) => {
+    if (qty > 1) {
+      updateQuantity(id, qty - 1)
+    }
+  }
+
+  const deleteCartProduct = async (id) => {
+    try {
+      const response = await fetch(summaryApi.removeFromCart.url, {
+        method: summaryApi.removeFromCart.method,
+        credentials: "include",
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          _id: id
+        })
+      })
+
+      const responseData = await response.json()
+
+      if (responseData.success) {
+        toast.success(responseData.message)
+        setData(prevData => prevData.filter(item => item._id !== id))
+        context.fetchUserAddToCart()
+      } else {
+        toast.error(responseData.message)
+      }
+    } catch (error) {
+      toast.error("Failed to remove item")
+    }
+  }
+
+  const calculateItemTotal = (price, quantity) => {
+    return price * quantity
+  }
+
+  const calculateSubtotal = () => {
+    return data.reduce((total, product) => {
+      return total + calculateItemTotal(product.productId.selling_price, product.quantity)
+    }, 0)
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-8">Your Shopping Cart</h1>
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Your Shopping Cart</h1>
 
-      {cartProducts.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-600 text-lg mb-4">Your cart is empty</p>
-          <Link
-            to="/"
-            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition"
-          >
-            Continue Shopping
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="hidden md:grid grid-cols-12 bg-gray-100 p-4 font-medium text-gray-700">
-                <div className="col-span-5">Product</div>
-                <div className="col-span-2 text-center">Price</div>
-                <div className="col-span-3 text-center">Quantity</div>
-                <div className="col-span-2 text-right">Subtotal</div>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Cart Items */}
+          <div className="lg:w-2/3">
+            {data.length === 0 && !loading && (
+              <div className="bg-white rounded-lg shadow p-8 text-center">
+                <p className="text-gray-500 text-lg">Your cart is empty</p>
+                <button 
+                  onClick={() => window.location.href = '/products'}
+                  className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
+                >
+                  Continue Shopping
+                </button>
               </div>
+            )}
 
-              {cartProducts.map((item) => (
-                <div key={item._id} className="grid grid-cols-12 p-4 border-b items-center">
-                  <div className="col-span-12 md:col-span-5 flex items-center gap-4 mb-4 md:mb-0">
-                    <img
-                      src={item.productId?.productImage?.[0] || '/default-product.png'}
-                      alt={item.productId?.productName}
-                      className="w-20 h-20 object-contain"
-                    />
-                    <div>
-                      <h3 className="font-medium">{item.productId?.productName}</h3>
-                      <button
-                        onClick={() => handleRemoveItem(item.productId._id)}
-                        className="text-red-500 text-sm flex items-center gap-1 mt-1"
-                      >
-                        <FaTrash size={12} /> Remove
-                      </button>
+            {loading ? (
+              loadingCart.map((el, index) => (
+                <div key={index + "Add to cart Loading"} className="bg-white rounded-lg shadow p-4 mb-4 animate-pulse">
+                  <div className="flex gap-4">
+                    <div className="w-24 h-24 bg-gray-200 rounded"></div>
+                    <div className="flex-1 space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                        <div className="h-4 bg-gray-200 rounded w-8"></div>
+                        <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="col-span-4 md:col-span-2 text-gray-600 text-center">
-                    {displayNEPCurrency(item.productId?.selling_price || item.productId?.price || 0)}
-                  </div>
-
-                  <div className="col-span-4 md:col-span-3 flex justify-center">
-                    <div className="flex items-center border rounded-md">
-                      <button
-                        onClick={() => handleUpdateQuantity(item.productId._id, item.quantity - 1)}
-                        className="px-3 py-1 hover:bg-gray-100"
-                        disabled={item.quantity <= 1}
-                      >
-                        <FaMinus size={12} />
-                      </button>
-                      <span className="px-4 py-1">{item.quantity}</span>
-                      <button
-                        onClick={() => handleUpdateQuantity(item.productId._id, item.quantity + 1)}
-                        className="px-3 py-1 hover:bg-gray-100"
-                      >
-                        <FaPlus size={12} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="col-span-4 md:col-span-2 text-right font-medium">
-                    {displayNEPCurrency(
-                      (item.productId?.selling_price || item.productId?.price || 0) * item.quantity
-                    )}
                   </div>
                 </div>
-              ))}
-            </div>
+              ))
+            ) : (
+              data.map((product) => (
+                <div key={product?._id} className="bg-white rounded-lg shadow p-4 mb-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="w-full sm:w-24 h-24 flex-shrink-0">
+                      <img 
+                        src={product?.productId?.productImage[0]} 
+                        alt={product?.productId?.productName}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h2 className="text-lg font-semibold text-gray-900">{product.productId.productName}</h2>
+                          <p className="text-sm text-gray-500">{product.productId.subcategory}</p>
+                        </div>
+                        <button 
+                          onClick={() => deleteCartProduct(product?._id)}
+                          className="text-red-500 hover:text-red-700 transition"
+                          aria-label="Remove item"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                      
+                      <div className="mt-4 grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Unit Price</p>
+                          <p className="font-medium">
+                            {displayNEPCurrency(product?.productId?.selling_price)}
+                          </p>
+                        </div>
+                        
+                        <div>
+                          <p className="text-sm text-gray-500">Total</p>
+                          <p className="font-medium text-indigo-600">
+                            {displayNEPCurrency(
+                              calculateItemTotal(
+                                product.productId.selling_price, 
+                                product.quantity
+                              )
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => decreaseQty(product._id, product.quantity)}
+                            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition disabled:opacity-50"
+                            disabled={product.quantity <= 1}
+                            aria-label="Decrease quantity"
+                          >
+                            <FaMinus size={12} />
+                          </button>
+                          <span className="w-8 text-center">{product.quantity}</span>
+                          <button 
+                            onClick={() => increaseQty(product._id, product.quantity)}
+                            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 transition"
+                            aria-label="Increase quantity"
+                          >
+                            <FaPlus size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-bold mb-4">Order Summary</h2>
-
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>{displayNEPCurrency(calculateTotal())}</span>
+          {/* Order Summary */}
+          <div className="lg:w-1/3">
+            <div className="bg-white rounded-lg shadow p-6 sticky top-4">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
+              
+              {loading ? (
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                 </div>
-
-                <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span>Free</span>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal ({data.reduce((acc, item) => acc + item.quantity, 0)} items)</span>
+                    <span className="font-medium">{displayNEPCurrency(calculateSubtotal())}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shipping</span>
+                    <span className="font-medium">Free</span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-4 flex justify-between">
+                    <span className="text-lg font-semibold">Total</span>
+                    <span className="text-lg font-semibold text-indigo-600">
+                      {displayNEPCurrency(calculateSubtotal())}
+                    </span>
+                  </div>
                 </div>
-
-                <div className="border-t pt-4 flex justify-between font-bold">
-                  <span>Total</span>
-                  <span>{displayNEPCurrency(calculateTotal())}</span>
-                </div>
-              </div>
-
-              <button className="w-full bg-blue-600 text-white py-3 rounded-md mt-6 hover:bg-blue-700 transition">
-                Proceed to Checkout
-              </button>
-
-              <Link
-                to="/"
-                className="block text-center text-blue-600 mt-4 hover:underline"
+              )}
+              
+              <button 
+                className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-md font-medium transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={data.length === 0 || loading}
               >
-                Continue Shopping
-              </Link>
+                {loading ? 'Processing...' : 'Proceed to Checkout'}
+              </button>
+              
+              {data.length > 0 && (
+                <button 
+                  onClick={() => window.location.href = '/products'}
+                  className="mt-4 w-full border border-indigo-600 text-indigo-600 hover:bg-indigo-50 py-3 px-4 rounded-md font-medium transition duration-150"
+                >
+                  Continue Shopping
+                </button>
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
-  );
-};
+  )
+}
 
-export default Cart;
+export default Cart
