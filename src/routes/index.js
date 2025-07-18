@@ -16,6 +16,7 @@ import CategoryProduct from '../pages/CategoryProduct'
 import ProductDetails from '../pages/ProductDetails'
 import Cart from '../pages/Cart'
 import SearchProduct from '../pages/SearchProduct'
+import SignupPage from '../pages/SignupPage'
 
 
 
@@ -35,7 +36,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "signup",
-                element: <Signup />
+                element: <SignupPage />
             },
             {
                 path: "forget-password",
