@@ -16,7 +16,6 @@ import CategoryProduct from '../pages/CategoryProduct'
 import ProductDetails from '../pages/ProductDetails'
 import Cart from '../pages/Cart'
 import SearchProduct from '../pages/SearchProduct'
-import SellerSignup from '../pages/SellerSignup'
 
 
 
@@ -36,7 +35,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "signup",
-                element: <Signup />
+                element: <SignupPage />
             },
             {
                 path: "seller-signup/:userId",
