@@ -10,6 +10,7 @@ import { setUserDetails } from '../store/userSlice';
 import logo from '../assest/logo.jpg';
 import Context from '../context';
 
+
 const Header = () => {
   const navigate = useNavigate()
   const user = useSelector(state => state?.user?.user)
@@ -23,6 +24,8 @@ const Header = () => {
       method: summaryApi.logout_user.method,
       credentials: 'include'
     })
+
+    console.log("user id ", user)
     const data = await fetchData.json()
     if (data.success) {
       toast.success(data.message)
@@ -80,6 +83,17 @@ const Header = () => {
 
         {/* User/Cart/Logout */}
         <div className="flex items-center gap-6">
+
+          {user?._id && (
+            <div>
+              <Link to={`/seller-signup/${user._id}`}>
+                <button className='px-3 py-1 rounded-full text-white bg-green-500 hover:bg-green-700'>
+                  Register as Seller
+                </button>
+              </Link>
+            </div>
+          )}
+
           <div>
             <Link to="./update-details">
               <FaRegUserCircle className='text-2xl cursor-pointer' />

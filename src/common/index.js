@@ -5,6 +5,10 @@ const summaryApi = {
         url: `${backendDomain}/api/signup`,
         method: "post"
     },
+    sellersignup: {
+        url: `${backendDomain}/api/sellersignup`,
+        method: "post"
+    },
     signin: {
         url: `${backendDomain}/api/signin`,
         method: "post"
@@ -27,7 +31,7 @@ const summaryApi = {
     },
     addProduct: {
         url: `${backendDomain}/api/add-product`,
-        method: "post"
+        method: "put"
     },
     updateProduct: {
         url: `${backendDomain}/api/update-product`,

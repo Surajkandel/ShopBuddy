@@ -19,9 +19,11 @@ const addToCartProductView = require('../controller/addToCartProductView')
 const removeFromCart = require('../controller/removeFromCart')
 const updateCartProduct = require('../controller/updateCartProduct')
 const searchProduct = require('../controller/searchProduct')
+const sellerSignUpController = require('../controller/sellerSignup')
 
 // User authentication routes
 router.post('/signup', userSignUpController)
+router.post('/sellersignup/:id', sellerSignUpController)
 router.post('/signin', userSignInController)
 router.get('/user-details', authToken, userDetailsController)
 router.get('/userLogout', userLogout)
