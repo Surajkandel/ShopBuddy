@@ -7,6 +7,7 @@ const authToken = require('../middleware/authToken')
 const userDetailsController = require('../controller/userDetails')
 const userLogout = require('../controller/userLogout')
 const allUsers = require('../controller/allUsers')
+const pendingSellers = require('../controller/pendingSellers')
 const AddProductController = require('../controller/addProduct')
 const getProductController = require('../controller/getProduct')
 const updateProductController = require('../controller/updateProduct')
@@ -20,6 +21,7 @@ const removeFromCart = require('../controller/removeFromCart')
 const updateCartProduct = require('../controller/updateCartProduct')
 const searchProduct = require('../controller/searchProduct')
 const sellerSignUpController = require('../controller/sellerSignup')
+const sellerStatus  = require('../controller/sellerStatus')
 
 // User authentication routes
 router.post('/signup', userSignUpController)
@@ -30,6 +32,8 @@ router.get('/userLogout', userLogout)
 
 // Admin panel routes
 router.get("/all-users", authToken, allUsers)
+router.get("/pending-sellers", authToken, pendingSellers)
+router.put("/update-status", authToken, sellerStatus)
 
 // Product routes
 router.post("/add-product", authToken, AddProductController)

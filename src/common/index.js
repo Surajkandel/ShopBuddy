@@ -25,6 +25,10 @@ const summaryApi = {
         url: `${backendDomain}/api/all-users`,
         method: 'get'
     },
+    pendingSellers: {
+        url: `${backendDomain}/api/pending-sellers`,
+        method: 'get'
+    },
     allProducts: {
         url: `${backendDomain}/api/all-products`,
         method: 'get'
@@ -79,9 +83,13 @@ const summaryApi = {
     getCartProducts: {
         url: `${backendDomain}/api/getcartproducts`,
         method: "get"
-    }, searchProduct : {
-        url : `${backendDomain}/api/search`,
-        method : 'get'
+    }, searchProduct: {
+        url: `${backendDomain}/api/search`,
+        method: 'get'
+    },
+    updateStatus: {
+        url: `${backendDomain}/api/update-status`,
+        method: 'put'
     }
 
 
