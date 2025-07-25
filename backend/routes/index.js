@@ -51,4 +51,4 @@ router.post("/remove-from-cart", authToken, removeFromCart)
 router.post("/update-cart-product", authToken, updateCartProduct)
 router.get("/search", searchProduct)
 
-module.exports = router
+module.exports = router;
