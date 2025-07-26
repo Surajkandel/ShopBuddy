@@ -19,9 +19,10 @@ const countAddToCartProduct = require('../controller/countAddToCart')
 const addToCartProductView = require('../controller/addToCartProductView')
 const removeFromCart = require('../controller/removeFromCart')
 const updateCartProduct = require('../controller/updateCartProduct')
+const clearCart = require('../controller/clearCart')
 const searchProduct = require('../controller/searchProduct')
 const sellerSignUpController = require('../controller/sellerSignup')
-const sellerStatus  = require('../controller/sellerStatus')
+const sellerStatus = require('../controller/sellerStatus')
 const {
   getNotifications,
   getNotificationCount,
@@ -29,6 +30,12 @@ const {
   markNotificationAsRead
 } = require('../controller/notificationController');
 
+
+// Import new controllers for orders and payments
+const createOrder = require('../controller/createOrder')
+const getUserOrders = require('../controller/getUserOrders')
+const initiateEsewaPayment = require('../controller/initiateEsewaPayment')
+const verifyEsewaPayment = require('../controller/verifyEsewaPayment')
 
 // User authentication routes
 router.post('/signup', userSignUpController)
@@ -56,6 +63,17 @@ router.get("/view-add-to-cart-product", authToken, addToCartProductView)
 router.post("/countaddtocartproduct", authToken, countAddToCartProduct)
 router.post("/remove-from-cart", authToken, removeFromCart)
 router.post("/update-cart-product", authToken, updateCartProduct)
+router.delete("/cart/clear", authToken, clearCart)
+
+// Order routes
+router.post("/order/create", authToken, createOrder)
+router.get("/order/user-orders", authToken, getUserOrders)
+
+// Payment routes (eSewa)
+router.post("/payment/esewa/initiate", authToken, initiateEsewaPayment)
+router.get("/payment/esewa/verify", authToken, verifyEsewaPayment)
+
+// Search route
 router.get("/search", searchProduct)
 
 // notification routes 
@@ -64,4 +82,4 @@ router.get('/notifications/count', authToken, getNotificationCount);
 router.put('/notifications/mark-all-read', authToken, markAllAsRead);
 router.put('/notifications/mark-read/:id', authToken, markNotificationAsRead);
 
-module.exports = router
+module.exports = router;
