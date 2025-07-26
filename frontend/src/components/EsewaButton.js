@@ -9,8 +9,8 @@ const EsewaButton = ({ amount, productId }) => {
     const psc = 0;
     const pdc = 0;
     const scd = "EPAYTEST"; // test merchant code
-    const su = "http://localhost:5173/esewa-payment-success"; // success redirect
-    const fu = "http://localhost:5173/esewa-payment-failure"; // failure redirect
+    const su = "http://localhost:3000/esewa-payment-success"; // success redirect
+    const fu = "http://localhost:3000/esewa-payment-failure"; // failure redirect
 
     const form = document.createElement("form");
     form.setAttribute("method", "POST");

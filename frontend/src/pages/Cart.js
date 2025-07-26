@@ -262,7 +262,7 @@ const Cart = () => {
                 onClick={() => navigate('/checkoutPage')}
                 className="mt-4 w-full border border-indigo-600 text-indigo-600 hover:bg-indigo-50 py-3 px-4 rounded-md font-medium transition duration-150"
               >
-                Esewa
+                BUY
               </button>
 
               {data.length > 0 && (

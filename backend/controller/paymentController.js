@@ -1,61 +1,184 @@
-const axios = require("axios");
-const Order = require("../models/Order");
-const Cart = require("../models/Cart"); // assume you have a cart model
-const User = require("../models/User");
+const Payment = require('../models/Payment');
+const Order = require('../models/Order');
+const crypto = require('crypto');
+const axios = require('axios');
 
-exports.initiatePayment = async (req, res) => {
-  const { amount, productId } = req.body;
-  const params = new URLSearchParams({
-    amt: amount,
-    psc: 0,
-    pdc: 0,
-    txAmt: 0,
-    tAmt: amount,
-    pid: productId,
-    scd: process.env.ESEWA_MERCHANT_CODE,
-    su: process.env.ESEWA_SUCCESS_URL,
-    fu: process.env.ESEWA_FAILURE_URL
-  });
-  const paymentURL = `${process.env.ESEWA_PAYMENT_URL}?${params.toString()}`;
-  res.json({ paymentURL });
+// eSewa Configuration
+const ESEWA_CONFIG = {
+  merchantId: process.env.ESEWA_MERCHANT_ID || 'EPAYTEST',
+  secretKey: process.env.ESEWA_SECRET_KEY || '8gBm/:&EnhH.1/q',
+  successUrl: process.env.ESEWA_SUCCESS_URL || 'http://localhost:3000/payment/success',
+  failureUrl: process.env.ESEWA_FAILURE_URL || 'http://localhost:3000/payment/failure',
+  paymentUrl: process.env.ESEWA_PAYMENT_URL || 'https://rc-epay.esewa.com.np/api/epay/main/v2/form',
+  verifyUrl: process.env.ESEWA_VERIFY_URL || 'https://rc-epay.esewa.com.np/api/epay/transaction/status/?product_code='
 };
 
-exports.verifyPayment = async (req, res) => {
-  const { amt, pid, rid } = req.body;
-  const xmlData = `
-    <paymentVerificationRequest>
-      <amt>${amt}</amt>
-      <scd>${process.env.ESEWA_MERCHANT_CODE}</scd>
-      <pid>${pid}</pid>
-      <rid>${rid}</rid>
-    </paymentVerificationRequest>
-  `;
+// Generate HMAC signature
+const generateSignature = (message, secretKey) => {
+  const hmac = crypto.createHmac('sha256', secretKey);
+  hmac.update(message);
+  return hmac.digest('base64');
+};
 
+// Create payment hash
+const createPaymentHash = (totalAmount, transactionUuid, productCode) => {
+  const message = `total_amount=${totalAmount},transaction_uuid=${transactionUuid},product_code=${productCode}`;
+  return generateSignature(message, ESEWA_CONFIG.secretKey);
+};
+
+// Generate transaction UUID
+const generateTransactionUuid = () => {
+  return crypto.randomBytes(16).toString('hex');
+};
+
+const initiatePayment = async (req, res) => {
   try {
-    const result = await axios.post(process.env.ESEWA_VERIFY_URL, xmlData, {
-      headers: { "Content-Type": "text/xml" },
+    const userId = req.userId;
+    const { orderId, totalAmount } = req.body;
+
+    // Validate order
+    const order = await Order.findOne({ _id: orderId, userId });
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found'
+      });
+    }
+
+    // Generate transaction UUID
+    const transactionUuid = generateTransactionUuid();
+
+    // Create payment record
+    const payment = new Payment({
+      orderId,
+      userId,
+      transactionUuid,
+      totalAmount,
+      status: 'pending'
+    });
+    await payment.save();
+
+    // Generate signature
+    const signature = createPaymentHash(
+      totalAmount,
+      transactionUuid,
+      ESEWA_CONFIG.merchantId
+    );
+
+    // Prepare eSewa payment data
+    const paymentData = {
+      amount: totalAmount,
+      failure_url: ESEWA_CONFIG.failureUrl,
+      product_delivery_charge: 0,
+      product_service_charge: 0,
+      product_code: ESEWA_CONFIG.merchantId,
+      signature: signature,
+      signed_field_names: "total_amount,transaction_uuid,product_code",
+      success_url: ESEWA_CONFIG.successUrl,
+      tax_amount: 0,
+      total_amount: totalAmount,
+      transaction_uuid: transactionUuid
+    };
+
+    res.json({
+      success: true,
+      paymentData,
+      paymentUrl: ESEWA_CONFIG.paymentUrl
     });
 
-    if (result.data.includes("<response_code>Success</response_code>")) {
-      const userId = req.userId; // from auth middleware if exists
-      const cartItems = await Cart.find({ userId }).populate("productId");
-
-      const order = new Order({
-        userId,
-        products: cartItems,
-        amount: amt,
-        pid,
-        rid
-      });
-
-      await order.save();
-      await Cart.deleteMany({ userId });
-
-      res.json({ success: true });
-    } else {
-      res.status(400).json({ success: false, message: "Invalid transaction" });
-    }
   } catch (error) {
-    res.status(500).json({ success: false, message: "Verification failed", error });
+    console.error('Payment initiation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to initiate payment'
+    });
   }
+};
+
+const verifyPayment = async (req, res) => {
+  try {
+    const { oid } = req.query;
+    const userId = req.userId;
+
+    if (!oid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Transaction UUID is required'
+      });
+    }
+
+    // Find payment record
+    const payment = await Payment.findOne({ 
+      transactionUuid: oid,
+      userId 
+    }).populate('orderId');
+
+    if (!payment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payment record not found'
+      });
+    }
+
+    try {
+      // Verify payment with eSewa
+      const verifyUrl = `${ESEWA_CONFIG.verifyUrl}${ESEWA_CONFIG.merchantId}&transaction_uuid=${oid}`;
+      const verificationResponse = await axios.get(verifyUrl);
+
+      if (verificationResponse.data.status === 'COMPLETE') {
+        // Update payment status
+        payment.status = 'completed';
+        payment.esewaResponse = verificationResponse.data;
+        payment.updatedAt = new Date();
+        await payment.save();
+
+        // Update order status
+        await Order.findByIdAndUpdate(payment.orderId._id, { 
+          status: 'paid',
+          paymentStatus: 'completed'
+        });
+
+        res.json({
+          success: true,
+          message: 'Payment verified successfully',
+          payment,
+          order: payment.orderId
+        });
+      } else {
+        payment.status = 'failed';
+        payment.esewaResponse = verificationResponse.data;
+        await payment.save();
+
+        res.status(400).json({
+          success: false,
+          message: 'Payment verification failed',
+          payment
+        });
+      }
+
+    } catch (verifyError) {
+      console.error('eSewa verification error:', verifyError);
+      
+      payment.status = 'failed';
+      payment.esewaResponse = { error: verifyError.message };
+      await payment.save();
+
+      res.status(500).json({
+        success: false,
+        message: 'Payment verification failed'
+      });
+    }
+
+  } catch (error) {
+    console.error('Payment verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to verify payment'
+    });
+  }
+};
+
+module.exports = {
+  initiatePayment,
+  verifyPayment
 };
