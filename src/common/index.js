@@ -87,6 +87,22 @@ const summaryApi = {
         url: `${backendDomain}/api/search`,
         method: 'get'
     },
+    notification: {
+        url: `${backendDomain}/api/notifications`,
+        method: 'GET'
+    },
+    notification_count: {
+        url: `${backendDomain}/api/notifications/count`,
+        method: 'GET'
+    },
+    notification_list: {
+        url: `${backendDomain}/api/notifications/list`,
+        method: 'GET'
+    },
+    notification_mark_read: {
+        url: `${backendDomain}/api/notifications/mark-read/:id`,
+        method: 'PUT'
+    },
     updateStatus: {
         url: `${backendDomain}/api/update-status`,
         method: 'put'

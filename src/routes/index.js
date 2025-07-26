@@ -18,6 +18,7 @@ import Cart from '../pages/Cart'
 import SearchProduct from '../pages/SearchProduct'
 import SignupPage from '../pages/SignupPage'
 import SellerSignup from '../pages/SellerSignup'
+import Notifications from '../pages/Notification'
 
 
 
@@ -82,6 +83,11 @@ const router = createBrowserRouter([
             {
                 path: "cart",
                 element : <Cart/>
+
+            },
+            {
+                path: "notifications",
+                element : <Notifications/>
 
             },
             {

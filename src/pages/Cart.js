@@ -273,7 +273,7 @@ const Cart = () => {
               
               {data.length > 0 && (
                 <button 
-                  onClick={() => window.location.href = '/products'}
+                  onClick={() => window.location.href = '/'}
                   className="mt-4 w-full border border-indigo-600 text-indigo-600 hover:bg-indigo-50 py-3 px-4 rounded-md font-medium transition duration-150"
                 >
                   Continue Shopping

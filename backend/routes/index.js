@@ -22,6 +22,13 @@ const updateCartProduct = require('../controller/updateCartProduct')
 const searchProduct = require('../controller/searchProduct')
 const sellerSignUpController = require('../controller/sellerSignup')
 const sellerStatus  = require('../controller/sellerStatus')
+const {
+  getNotifications,
+  getNotificationCount,
+  markAllAsRead,
+  markNotificationAsRead
+} = require('../controller/notificationController');
+
 
 // User authentication routes
 router.post('/signup', userSignUpController)
@@ -50,5 +57,11 @@ router.post("/countaddtocartproduct", authToken, countAddToCartProduct)
 router.post("/remove-from-cart", authToken, removeFromCart)
 router.post("/update-cart-product", authToken, updateCartProduct)
 router.get("/search", searchProduct)
+
+// notification routes 
+router.get('/notifications/list', authToken, getNotifications);
+router.get('/notifications/count', authToken, getNotificationCount);
+router.put('/notifications/mark-all-read', authToken, markAllAsRead);
+router.put('/notifications/mark-read/:id', authToken, markNotificationAsRead);
 
 module.exports = router

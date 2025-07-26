@@ -1,12 +1,9 @@
-
-
 const userModel = require("../models/userModel");
+const Notification = require("../models/notificationModel"); // Make sure this path is correct
 
 async function sellerStatus(req, res) {
     try {
         const { userId, status } = req.body;
-        
-
 
         // Validate status
         if (!['ACCEPTED', 'REJECTED', 'PENDING'].includes(status)) {
@@ -29,12 +26,19 @@ async function sellerStatus(req, res) {
             });
         }
 
-        
+        // ✅ Send notification if status is ACCEPTED
+        if (status === 'ACCEPTED') {
+            await Notification.create({
+                userId: updatedSeller._id,
+                message: '🎉 Your seller request has been approved. You can now manage your shop.'
+            });
+        }
 
         res.json({
             success: true,
             data: updatedSeller
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -43,4 +47,4 @@ async function sellerStatus(req, res) {
     }
 }
 
-module.exports = sellerStatus; 
+module.exports = sellerStatus;
