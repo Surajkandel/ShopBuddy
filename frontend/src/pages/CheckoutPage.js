@@ -4,12 +4,14 @@ import { toast } from 'react-toastify';
 import Context from '../context';
 import displayNEPCurrency from '../helpers/displayCurrency';
 import { createOrder, initiateEsewaPayment, clearCart } from '../api/paymentApi';
-import summaryApi from '../common/index'; // Add this import
+import summaryApi from '../common/index';
 
 const CheckoutPage = () => {
   const [cartData, setCartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [codLoading, setCodLoading] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('esewa'); // Default to eSewa
   const [shippingInfo, setShippingInfo] = useState({
     fullName: '',
     email: '',
@@ -18,7 +20,7 @@ const CheckoutPage = () => {
     city: '',
     zipCode: ''
   });
-  
+
   const context = useContext(Context);
   const navigate = useNavigate();
 
@@ -82,7 +84,7 @@ const CheckoutPage = () => {
         return false;
       }
     }
-    
+
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(shippingInfo.email)) {
@@ -93,8 +95,13 @@ const CheckoutPage = () => {
     return true;
   };
 
-  // Create order and initiate eSewa payment
-  const handleEsewaPayment = async () => {
+  // Handle payment method selection
+  const handlePaymentMethodChange = (method) => {
+    setSelectedPaymentMethod(method);
+  };
+
+  // Create order and initiate payment based on selected method
+  const handlePlaceOrder = async () => {
     if (!validateForm()) return;
 
     if (cartData.length === 0) {
@@ -102,6 +109,15 @@ const CheckoutPage = () => {
       return;
     }
 
+    if (selectedPaymentMethod === 'esewa') {
+      await handleEsewaPayment();
+    } else if (selectedPaymentMethod === 'cod') {
+      await handleCashOnDelivery();
+    }
+  };
+
+  // Create order and initiate eSewa payment
+  const handleEsewaPayment = async () => {
     setPaymentLoading(true);
 
     try {
@@ -157,6 +173,109 @@ const CheckoutPage = () => {
     }
   };
 
+  // Handle Cash on Delivery
+  const handleCashOnDelivery = async () => {
+    setCodLoading(true);
+
+    try {
+      const orderData = {
+        items: cartData.map(item => ({
+          productId: item.productId._id,
+          name: item.productId.productName,
+          price: item.productId.selling_price,
+          quantity: item.quantity,
+          image: item.productId.productImage[0]
+        })),
+        shippingInfo,
+        subtotal,
+        shipping,
+        total,
+        paymentMethod: 'cod'
+      };
+
+      // Create order in backend
+      const orderResult = await createOrder(orderData);
+
+      if (orderResult.success) {
+        // Reduce stock quantities
+        await reduceProductStock();
+        
+        // Send notification to seller
+        await notifySeller(orderResult.orderId);
+        
+        // Clear cart after successful order creation
+        await clearCart();
+        
+        toast.success('Order placed successfully! You will pay when your order arrives.');
+        navigate('/order-success', { state: { orderId: orderResult.orderId } });
+      } else {
+        throw new Error(orderResult.message || 'Failed to create order');
+      }
+    } catch (error) {
+      console.error('COD error:', error);
+      toast.error(error.message || 'Failed to place order. Please try again.');
+    } finally {
+      setCodLoading(false);
+    }
+  };
+
+  // Reduce product stock quantities
+  const reduceProductStock = async () => {
+    try {
+      const response = await fetch(summaryApi.updateProductStock.url, {
+        method: summaryApi.updateProductStock.method,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: cartData.map(item => ({
+            productId: item.productId._id,
+            quantity: item.quantity
+          }))
+        })
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to update product stock:', data.message);
+      }
+    } catch (error) {
+      console.error('Error updating product stock:', error);
+    }
+  };
+
+  // Send notification to seller
+  const notifySeller = async (orderId) => {
+    try {
+      const response = await fetch(summaryApi.notifySeller.url, {
+        method: summaryApi.notifySeller.method,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId,
+          items: cartData.map(item => ({
+            productId: item.productId._id,
+            name: item.productId.productName,
+            quantity: item.quantity
+          })),
+          totalAmount: total,
+          paymentMethod: 'cod',
+          customerInfo: shippingInfo
+        })
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error('Failed to notify seller:', data.message);
+      }
+    } catch (error) {
+      console.error('Error notifying seller:', error);
+    }
+  };
+
   // Redirect to eSewa
   const redirectToEsewa = (paymentData, paymentUrl) => {
     const form = document.createElement('form');
@@ -203,7 +322,7 @@ const CheckoutPage = () => {
           {/* Shipping Information */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Shipping Information</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -296,7 +415,7 @@ const CheckoutPage = () => {
           {/* Order payment */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
-            
+
             {/* Cart Items */}
             <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
               {cartData.map((item) => (
@@ -337,14 +456,59 @@ const CheckoutPage = () => {
               </div>
             </div>
 
-            {/* Payment Button */}
+            {/* Payment Methods */}
+            <div className="mt-6 space-y-3">
+              <h3 className="text-md font-medium text-gray-900">Payment Method</h3>
+
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <input
+                    id="esewa"
+                    name="paymentMethod"
+                    type="radio"
+                    checked={selectedPaymentMethod === 'esewa'}
+                    onChange={() => handlePaymentMethodChange('esewa')}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  />
+                  <label
+                    htmlFor="esewa"
+                    className="block cursor-pointer rounded-md  px-4 py-3 shadow-sm hover:ring-1transition duration-150 ease-in-out flex items-center justify-between space-x-3 bg-white"
+                  >
+                    <span className="text-sm font-medium text-gray-800">Pay with eSewa</span>
+                    <img
+                      src="https://esewa.com.np/common/images/esewa_logo.png"
+                      alt="eSewa"
+                      className="h-6"
+                    />
+                  </label>
+
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    id="cod"
+                    name="paymentMethod"
+                    type="radio"
+                    checked={selectedPaymentMethod === 'cod'}
+                    onChange={() => handlePaymentMethodChange('cod')}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  />
+                  <label htmlFor="cod" className="ml-3 block text-sm font-medium text-gray-700">
+                    Cash on Delivery
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Buttons */}
             <div className="mt-6 space-y-3">
               <button
-                onClick={handleEsewaPayment}
-                disabled={paymentLoading || cartData.length === 0}
-                className="w-full bg-green-600 text-white py-3 px-4 rounded-md font-medium hover:bg-green-700 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                onClick={handlePlaceOrder}
+                disabled={paymentLoading || codLoading || cartData.length === 0}
+                className={`w-full text-white py-3 px-4 rounded-md font-medium transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${selectedPaymentMethod === 'esewa' ? 'bg-green-600 hover:bg-green-700' : 'bg-indigo-600 hover:bg-indigo-700'
+                  }`}
               >
-                {paymentLoading ? (
+                {(paymentLoading || codLoading) ? (
                   <>
                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -353,13 +517,17 @@ const CheckoutPage = () => {
                     Processing...
                   </>
                 ) : (
-                  <>
-                    <img src="https://esewa.com.np/common/images/esewa_logo.png" alt="eSewa" className="h-6 mr-2" />
-                    Pay with eSewa
-                  </>
+                  selectedPaymentMethod === 'esewa' ? (
+                    <>
+                      <img src="https://esewa.com.np/common/images/esewa_logo.png" alt="eSewa" className="h-6 mr-2 red" />
+                      Pay with eSewa
+                    </>
+                  ) : (
+                    'Place Order (Cash on Delivery)'
+                  )
                 )}
               </button>
-              
+
               <button
                 onClick={() => navigate('/cart')}
                 className="w-full border border-gray-300 text-gray-700 py-3 px-4 rounded-md font-medium hover:bg-gray-50 transition duration-150"

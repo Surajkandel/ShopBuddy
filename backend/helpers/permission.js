@@ -5,7 +5,7 @@ const UploadProductPermission = async(userId) =>{
 
     console.log("role of the user is ",user.role)
 
-    if(user.role !== "Seller"){
+    if(user.role !== "SELLER"){
         return false
     }
     return true

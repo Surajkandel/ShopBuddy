@@ -12,44 +12,61 @@ import Context from '../context';
 const ProductDetails = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
-  const {  fetchUserAddToCart } = useContext(Context)
-  const navigate = useNavigate()
+  const { fetchUserAddToCart } = useContext(Context);
+  const navigate = useNavigate();
 
-  const handleAddToCart = async(e, id)=>{
-    await addToCart(e, id)
-    fetchUserAddToCart()
-    
+  // Calculate average rating and total reviews
+  const averageRating = reviews.length > 0 
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+    : 0;
+  const totalReviews = reviews.length;
 
-  }
+  const handleAddToCart = async(e, id) => {
+    await addToCart(e, id);
+    fetchUserAddToCart();
+  };
 
-  const handleBuyProduct = async(e,id)=>{
-    await addToCart(e, id)
-    fetchUserAddToCart()
-    navigate('/Cart')
-  }
+  const handleBuyProduct = async(e, id) => {
+    await addToCart(e, id);
+    fetchUserAddToCart();
+    navigate('/Cart');
+  };
 
   useEffect(() => {
-    const fetchProductDetails = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`${summaryApi.productDetails.url}/${productId}`);
-        const data = await response.json();
+        setLoading(true);
+        
+        // Fetch product details
+        const productResponse = await fetch(`${summaryApi.productDetails.url}/${productId}`);
+        const productData = await productResponse.json();
 
-        if (data.success) {
-          setProduct(data.data);
+        // Fetch reviews
+        const reviewsResponse = await fetch(`${summaryApi.getProductReviews.url}/${productId}`);
+        const reviewsData = await reviewsResponse.json();
+
+        if (productData.success) {
+          setProduct(productData.data);
         } else {
-          setError(data.message || 'Product not found');
+          setError(productData.message || 'Product not found');
         }
+
+        if (reviewsData.success) {
+          setReviews(reviewsData.data);
+        }
+
       } catch (err) {
-        setError(err.message || 'Failed to fetch product');
+        setError(err.message || 'Failed to fetch data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProductDetails();
+    fetchData();
   }, [productId]);
 
   const handleNextImage = () => {
@@ -110,25 +127,39 @@ const ProductDetails = () => {
             {product.description}
           </p>
 
-          {/* Review Summary */}
+          {/* Dynamic Review Summary */}
           <div className="flex items-center mb-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <span key={i} className="text-yellow-400">
-                {i <= 4 ? <IoStarSharp /> : <IoStarOutline />} {/* Example static rating */}
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span key={star} className="text-yellow-400">
+                {averageRating >= star ? (
+                  <IoStarSharp />
+                ) : averageRating >= star - 0.5 ? (
+                  <IoStarHalfSharp />
+                ) : (
+                  <IoStarOutline />
+                )}
               </span>
             ))}
-            <span className="ml-2 text-sm text-gray-600">(12 Reviews)</span>
+            <span className="ml-2 text-sm text-gray-600">
+              {totalReviews > 0 ? (
+                <>
+                  {averageRating.toFixed(1)} ({totalReviews} {totalReviews === 1 ? 'Review' : 'Reviews'})
+                </>
+              ) : (
+                '(No Reviews Yet)'
+              )}
+            </span>
           </div>
 
           <div className="flex gap-3 mb-6">
             <Link
-              to={`/review/write/${product._id}`}
+              to={`/write-review/${product._id}`}
               className="text-blue-600 hover:underline text-sm"
             >
               Write a Review
             </Link>
             <Link
-              to={`/review/${product._id}`}
+              to={`/view-review/${product._id}`}
               className="text-blue-600 hover:underline text-sm"
             >
               View All Reviews
@@ -137,25 +168,24 @@ const ProductDetails = () => {
 
           <div className="mt-auto flex gap-4">
             <button 
-            onClick={(e)=>handleAddToCart(e,product?._id)}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base px-4 py-2 rounded-md transition"
-            
+              onClick={(e) => handleAddToCart(e, product?._id)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base px-4 py-2 rounded-md transition"
             >
               Add to Cart
             </button>
-            <button className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-100 text-sm sm:text-base px-4 py-2 rounded-md transition"
-            onClick={(e)=>handleBuyProduct(e,product?._id)}>
+            <button 
+              onClick={(e) => handleBuyProduct(e, product?._id)}
+              className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-100 text-sm sm:text-base px-4 py-2 rounded-md transition"
+            >
               Buy Now
             </button>
           </div>
         </div>
       </div>
 
-      {/* <CategoryWiseProduct/> */}
-     {product?.subcategory && (
-  <CategoryProduct subcategory={product.subcategory} />
-)}    
-      
+      {product?.subcategory && (
+        <CategoryProduct subcategory={product.subcategory} />
+      )}
     </div>
   );
 };

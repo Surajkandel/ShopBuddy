@@ -16,11 +16,14 @@ import CategoryProduct from '../pages/CategoryProduct';
 import ProductDetails from '../pages/ProductDetails';
 import Cart from '../pages/Cart';
 import SearchProduct from '../pages/SearchProduct';
+import Notifications from '../pages/Notification'
 
 // ✅ NEW IMPORTS
 import CheckoutPage from '../pages/CheckoutPage';
 import PaymentSuccess from '../pages/PaymentSuccess';
 import PaymentFailure from '../pages/PaymentFailure';
+import ViewReview from '../pages/ViewReview';
+import WriteReview from '../pages/WriteReview';
 
 const router = createBrowserRouter([
   {
@@ -36,8 +39,21 @@ const router = createBrowserRouter([
         element: <Login />,
       },
       {
+        path: "notifications",
+        element: <Notifications />
+
+      },
+      {
         path: 'signup',
         element: <SignupPage />,
+      },
+      {
+        path : 'write-review/:productId',
+        element: <WriteReview/>
+      },
+      {
+        path : 'view-review/:productId',
+        element: <ViewReview/>
       },
       {
         path: 'seller-signup/:userId',
@@ -88,11 +104,11 @@ const router = createBrowserRouter([
         element: <CheckoutPage />,
       },
       {
-        path: 'esewa-payment-success',
+        path: 'payment/success',
         element: <PaymentSuccess />,
       },
       {
-        path: 'esewa-payment-failure',
+        path: 'payment/failure',
         element: <PaymentFailure />,
       },
 

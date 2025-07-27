@@ -8,10 +8,13 @@ const ESEWA_CONFIG = {
   verifyUrl: process.env.ESEWA_VERIFY_URL || 'https://rc-epay.esewa.com.np/api/epay/transaction/status/?product_code='
 };
 
+
 async function verifyEsewaPayment(req, res) {
   try {
     const { oid } = req.query;
     const userId = req.userId;
+    console.log("oid and userid is ", oid, userId)
+    
 
     if (!oid) {
       return res.status(400).json({
@@ -33,10 +36,16 @@ async function verifyEsewaPayment(req, res) {
       });
     }
 
+    console.log("payment is ", payment)
+
     try {
       // Verify payment with eSewa
       const verifyUrl = `${ESEWA_CONFIG.verifyUrl}${ESEWA_CONFIG.merchantId}&transaction_uuid=${oid}`;
+
+      console.log("verifyUrl",verifyUrl)
       const verificationResponse = await axios.get(verifyUrl);
+
+      console.log("verificationResponse",verificationResponse)
 
       if (verificationResponse.data.status === 'COMPLETE') {
         // Update payment status
@@ -44,6 +53,7 @@ async function verifyEsewaPayment(req, res) {
         payment.esewaResponse = verificationResponse.data;
         payment.updatedAt = new Date();
         await payment.save();
+        
 
         // Update order status
         const updatedOrder = await Order.findByIdAndUpdate(
@@ -81,6 +91,7 @@ async function verifyEsewaPayment(req, res) {
       await payment.save();
 
       res.status(500).json({
+        data:payment,
         success: false,
         message: 'Payment verification failed due to network error'
       });

@@ -36,6 +36,8 @@ const createOrder = require('../controller/createOrder')
 const getUserOrders = require('../controller/getUserOrders')
 const initiateEsewaPayment = require('../controller/initiateEsewaPayment')
 const verifyEsewaPayment = require('../controller/verifyEsewaPayment')
+const { createReview, getProductReviews } = require('../controller/reviewController')
+const checkSellerStatus = require('../middleware/checkSellerStatus')
 
 // User authentication routes
 router.post('/signup', userSignUpController)
@@ -50,7 +52,7 @@ router.get("/pending-sellers", authToken, pendingSellers)
 router.put("/update-status", authToken, sellerStatus)
 
 // Product routes
-router.post("/add-product", authToken, AddProductController)
+router.post("/add-product", authToken,  AddProductController)
 router.get("/get-product", getProductController)
 router.post("/update-product", authToken, updateProductController)
 router.get("/get-CategoryProduct", getCategoryProduct)
@@ -71,7 +73,7 @@ router.get("/order/user-orders", authToken, getUserOrders)
 
 // Payment routes (eSewa)
 router.post("/payment/esewa/initiate", authToken, initiateEsewaPayment)
-router.get("/payment/esewa/verify", authToken, verifyEsewaPayment)
+router.get("/payment/esewa/verify", authToken, verifyEsewaPayment);
 
 // Search route
 router.get("/search", searchProduct)
@@ -81,5 +83,10 @@ router.get('/notifications/list', authToken, getNotifications);
 router.get('/notifications/count', authToken, getNotificationCount);
 router.put('/notifications/mark-all-read', authToken, markAllAsRead);
 router.put('/notifications/mark-read/:id', authToken, markNotificationAsRead);
+
+
+//review routes
+router.post('/writereview', authToken, createReview);
+router.get('/viewreview/:productId', getProductReviews);
 
 module.exports = router;

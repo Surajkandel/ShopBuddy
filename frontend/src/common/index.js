@@ -25,13 +25,17 @@ const summaryApi = {
         url: `${backendDomain}/api/all-users`,
         method: 'get'
     },
+    pendingSellers: {
+        url: `${backendDomain}/api/pending-sellers`,
+        method: 'get'
+    },
     allProducts: {
         url: `${backendDomain}/api/all-products`,
         method: 'get'
     },
     addProduct: {
         url: `${backendDomain}/api/add-product`,
-        method: "post"
+        method: "put"
     },
     updateProduct: {
         url: `${backendDomain}/api/update-product`,
@@ -102,7 +106,24 @@ const summaryApi = {
     updateStatus: {
         url: `${backendDomain}/api/update-status`,
         method: 'put'
+    },
+    createReview: {
+        url: `${backendDomain}/api/writereview`,
+        method: "POST"
+    },
+    getProductReviews: {
+        url: `${backendDomain}/api/viewreview`,
+        method: "GET"
+    }, 
+    updateProductStock: {
+        url: '/api/update-product-stock',
+        method: 'POST'
+    },
+    notifySeller: {
+        url: '/api/notify-seller',
+        method: 'POST'
     }
+
 
 
 }

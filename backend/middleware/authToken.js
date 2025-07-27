@@ -1,12 +1,15 @@
+console.log("authToken middleware called");
 const jwt = require('jsonwebtoken');
 
 async function authToken(req, res, next) {
   try {
     const token = req.cookies?.token;
+    console.log("Received token:", req.cookies?.token);
+     console.log("Received token:fee", token); 
 
     if (!token) {
       return res.status(401).json({
-        message: "User is not logged in",
+        message: "User is not logged indee",
         error: true,
         success: false,
       });

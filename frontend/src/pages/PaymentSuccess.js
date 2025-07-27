@@ -14,48 +14,57 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const context = useContext(Context);
 
-  useEffect(() => {
-    const verifyPayment = async () => {
-      try {
-        const oid = searchParams.get('oid');
-        const amt = searchParams.get('amt');
-        const refId = searchParams.get('refId');
-        
-        if (!oid) {
-          setError('Invalid payment response');
-          setPaymentStatus('failed');
-          return;
-        }
+ useEffect(() => {
+  const verifyPayment = async () => {
+    try {
+      const encodedData = searchParams.get('data');
 
-        // Verify payment with backend
-        const result = await verifyEsewaPayment(oid);
-        
-        if (result.success) {
-          setPaymentStatus('success');
-          setPaymentData(result.payment);
-          setOrderData(result.order);
-          
-          // Clear cart after successful payment
-          await clearCart();
-          
-          // Update cart count
-          context.fetchUserAddToCart();
-          
-          toast.success('Payment completed successfully!');
-        } else {
-          setPaymentStatus('failed');
-          setError(result.message || 'Payment verification failed');
-        }
-
-      } catch (error) {
-        console.error('Verification error:', error);
+      if (!encodedData) {
+        setError('Missing payment data');
         setPaymentStatus('failed');
-        setError('Payment verification failed');
+        return;
       }
-    };
 
-    verifyPayment();
-  }, [searchParams, context]);
+      // Decode Base64 string and parse JSON
+      const decodedString = atob(encodedData);
+      const parsedData = JSON.parse(decodedString);
+
+      const transactionUuid = parsedData.transaction_uuid;
+      const amount = parsedData.total_amount;
+      const status = parsedData.status;
+
+      console.log("Decoded:", parsedData);
+
+      if (!transactionUuid || status !== "COMPLETE") {
+        setError('Invalid or incomplete payment data');
+        setPaymentStatus('failed');
+        return;
+      }
+
+      const result = await verifyEsewaPayment(transactionUuid);
+      
+
+      if (result.success) {
+        setPaymentStatus('success');
+        setPaymentData(result.payment);
+        setOrderData(result.order);
+        await clearCart();
+        context.fetchUserAddToCart();
+        toast.success('Payment completed successfully!');
+      } else {
+        setPaymentStatus('failed');
+        setError(result.message || 'Payment verification failed');
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
+      setPaymentStatus('failed');
+      setError('Payment verification failed');
+    }
+  };
+
+  verifyPayment();
+}, [searchParams, context]);
+
 
   const clearCart = async () => {
     try {
