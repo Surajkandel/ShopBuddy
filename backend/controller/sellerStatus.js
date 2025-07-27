@@ -30,7 +30,9 @@ async function sellerStatus(req, res) {
         if (status === 'ACCEPTED') {
             await Notification.create({
                 userId: updatedSeller._id,
-                message: '🎉 Your seller request has been approved. You can now manage your shop.'
+                message: '🎉 Your seller request has been approved. You can now manage your shop.',
+                type: 'SELLER_STATUS'
+
             });
         }
 

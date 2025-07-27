@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Context from '../context';
 import displayNEPCurrency from '../helpers/displayCurrency';
-import { createOrder, initiateEsewaPayment, clearCart } from '../api/paymentApi';
+import { createOrder, initiateEsewaPayment } from '../api/paymentApi';
 import summaryApi from '../common/index';
 
 const CheckoutPage = () => {
@@ -116,6 +116,32 @@ const CheckoutPage = () => {
     }
   };
 
+  const clearCart = async () => {
+    try {
+      const response = await fetch(summaryApi.clearCart.url, {
+        method: summaryApi.clearCart.method,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+        // No body needed here
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        console.error('Failed to clear cart:', data.message);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      toast.error(error)
+      return { success: false, message: error.message };
+    }
+  };
+
+
   // Create order and initiate eSewa payment
   const handleEsewaPayment = async () => {
     setPaymentLoading(true);
@@ -198,16 +224,19 @@ const CheckoutPage = () => {
 
       if (orderResult.success) {
         // Reduce stock quantities
-        await reduceProductStock();
-        
+        await updateStock();
+
         // Send notification to seller
         await notifySeller(orderResult.orderId);
-        
+
         // Clear cart after successful order creation
         await clearCart();
-        
+        setCartData([]);
+        context.fetchUserAddToCart();
+        console.log("Cart after clearing:", cartData);
+
         toast.success('Order placed successfully! You will pay when your order arrives.');
-        navigate('/order-success', { state: { orderId: orderResult.orderId } });
+        navigate('/');
       } else {
         throw new Error(orderResult.message || 'Failed to create order');
       }
@@ -220,30 +249,34 @@ const CheckoutPage = () => {
   };
 
   // Reduce product stock quantities
-  const reduceProductStock = async () => {
+  const updateStock = async () => {
     try {
-      const response = await fetch(summaryApi.updateProductStock.url, {
-        method: summaryApi.updateProductStock.method,
+      const response = await fetch(summaryApi.stockUpdate.url, {
+        method: summaryApi.stockUpdate.method,
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           items: cartData.map(item => ({
-            productId: item.productId._id,
+            productId: item.productId._id || item.productId, // depending on your structure
             quantity: item.quantity
           }))
-        })
+        }),
       });
 
       const data = await response.json();
+
       if (!data.success) {
-        console.error('Failed to update product stock:', data.message);
+        console.error("❌ Failed to update stock:", data.message);
+      } else {
+        console.log("✅ Stock updated successfully");
       }
     } catch (error) {
-      console.error('Error updating product stock:', error);
+      console.error(" Error updating stock:", error);
     }
   };
+
 
   // Send notification to seller
   const notifySeller = async (orderId) => {
@@ -254,17 +287,7 @@ const CheckoutPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          orderId,
-          items: cartData.map(item => ({
-            productId: item.productId._id,
-            name: item.productId.productName,
-            quantity: item.quantity
-          })),
-          totalAmount: total,
-          paymentMethod: 'cod',
-          customerInfo: shippingInfo
-        })
+        body: JSON.stringify({ orderId }),
       });
 
       const data = await response.json();
@@ -275,6 +298,7 @@ const CheckoutPage = () => {
       console.error('Error notifying seller:', error);
     }
   };
+
 
   // Redirect to eSewa
   const redirectToEsewa = (paymentData, paymentUrl) => {

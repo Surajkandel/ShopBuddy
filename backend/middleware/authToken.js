@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 async function authToken(req, res, next) {
   try {
     const token = req.cookies?.token;
-    console.log("Received token:", req.cookies?.token);
-     console.log("Received token:fee", token); 
+    // console.log("Received token:", req.cookies?.token);
+    //  console.log("Received token:fee", token); 
 
     if (!token) {
       return res.status(401).json({

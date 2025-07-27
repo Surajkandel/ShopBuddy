@@ -35,7 +35,7 @@ const summaryApi = {
     },
     addProduct: {
         url: `${backendDomain}/api/add-product`,
-        method: "put"
+        method: "post"
     },
     updateProduct: {
         url: `${backendDomain}/api/update-product`,
@@ -80,6 +80,12 @@ const summaryApi = {
         url: `${backendDomain}/api/update-cart-product`,
         method: 'post'
     },
+    clearCart:{
+         url: `${backendDomain}/api/cart/clear`,
+        method: 'delete'
+
+
+    },
     getCartProducts: {
         url: `${backendDomain}/api/getcartproducts`,
         method: "get"
@@ -115,14 +121,15 @@ const summaryApi = {
         url: `${backendDomain}/api/viewreview`,
         method: "GET"
     }, 
-    updateProductStock: {
-        url: '/api/update-product-stock',
-        method: 'POST'
-    },
+    stockUpdate: {
+        url: `${backendDomain}/api/updateproductstock`,
+        method: "post"
+    }, 
     notifySeller: {
-        url: '/api/notify-seller',
-        method: 'POST'
+        url: `${backendDomain}/api/notifyseller`,
+        method: "post"
     }
+    
 
 
 
