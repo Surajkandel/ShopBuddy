@@ -47,7 +47,8 @@ async function userSignInController(req, res) {
                 message : "Login successfully",
                 data : {
                     token: token,
-                    role: user.role
+                    role: user.role,
+                    status: user.status
                 },
                 success : true, 
                 error: false

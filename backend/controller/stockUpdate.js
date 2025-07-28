@@ -1,9 +1,11 @@
 const Product = require("../models/productModel");
+const userModel = require("../models/userModel");
+const Notification = require("../models/notificationModel")
 
 const stockUpdate = async (req, res) => {
   try {
     const { items } = req.body;
-    console.log("items is ",items)
+    console.log("items is ", items)
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
@@ -14,6 +16,9 @@ const stockUpdate = async (req, res) => {
 
     const updatePromises = items.map(async (items) => {
       const product = await Product.findById(items.productId);
+      const productName = product.productName
+      const sellerId = product.userId
+      // console.log("product is ",sellerId) 
 
 
       if (!product) {
@@ -26,6 +31,16 @@ const stockUpdate = async (req, res) => {
 
       product.stock -= items.quantity;
       await product.save();
+      if (product.stock <= 10) {
+        await Notification.create({
+          userId: sellerId,
+          message: `🎉Product ${productName} stock is less then 10 update stock as soon as possible',
+          type: 'out of stock`
+
+        })
+
+      }
+
     });
 
     await Promise.all(updatePromises);

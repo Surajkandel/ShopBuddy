@@ -49,14 +49,18 @@ const Login = () => {
 
       const dataApi = await dataResponse.json()
       const userRole =dataApi.data?.role
-
+      const userStatus = dataApi.data?.status
+//  console.log("the dataApi of user is ", dataApi)
       if (dataApi.success) {
         toast.success(dataApi.message)
         // Role-based navigation
         if (userRole === 'ADMIN') {
-          navigate('/admin-pannel');
-        } else if (userRole === 'SELLER') {
-          navigate('/seller-pannel');
+          navigate('/admin-pannel/pending-sellers');
+        } else if (userRole === 'SELLER' && (userStatus === "ACCEPTED" || userStatus === "ACTIVE")) {
+          navigate('/seller-pannel/all-products');
+        } else if (userRole === 'SELLER' && (userStatus === "PENDING" || userStatus === "pending")) {
+          navigate('/');
+          toast.error("Your Seller status is under observation. you get notified after success")
         } else if(userRole === "GENERAL"){
           navigate('/');
         }

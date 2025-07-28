@@ -81,6 +81,32 @@ const ProductDetails = () => {
   if (error) return <div className="text-center py-10 text-red-500 text-lg">{error}</div>;
   if (!product) return <div className="text-center py-10 text-gray-600">Product not found</div>;
 
+
+  // Stock status display logic
+  const renderStockStatus = () => {
+    if (product.stock > 10) {
+      return (
+        <span className="text-green-600 font-medium">
+          In Stock ({product.stock} available)
+        </span>
+      );
+    } else if (product.stock > 0) {
+      return (
+        <span className="text-yellow-600 font-medium">
+          Only {product.stock} left in stock!
+        </span>
+      );
+    } else {
+      return (
+        <span className="text-red-600 font-medium">
+          Out of Stock
+        </span>
+      );
+    }
+  };
+
+
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden md:flex">
@@ -111,6 +137,12 @@ const ProductDetails = () => {
           <p className="text-gray-500 mb-3 text-sm font-medium">
             Brand: <span className="text-gray-800">{product.brandName}</span>
           </p>
+
+           <div className="mb-2">
+            <p className="text-sm font-medium">
+              Availability: {renderStockStatus()}
+            </p>
+          </div>
 
           <div className="mb-4 flex items-center gap-3">
             <span className="text-2xl text-blue-600 font-semibold">
