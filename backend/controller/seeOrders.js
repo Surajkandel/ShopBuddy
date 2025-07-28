@@ -2,11 +2,11 @@ const Order = require('../models/Order');
 const User = require('../models/userModel');
 const Product = require('../models/productModel');
 
-exports.myOrders = async (req, res) => {
+const myOrders = async (req, res) => {
     try {
         const user = await User.findById(req.userId);
         if (!user) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
                 error: "User not found",
                 orders: [] // Explicit empty array
@@ -24,13 +24,13 @@ exports.myOrders = async (req, res) => {
             orders = await Order.find({ userId: req.userId }).sort({ createdAt: -1 });
         }
 
-        res.json({ 
+        res.json({
             success: true,
             orders: orders || [] // Ensure array even if null
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             error: 'Failed to fetch orders',
             orders: [] // Fallback empty array
@@ -38,13 +38,14 @@ exports.myOrders = async (req, res) => {
     }
 };
 
-exports.completeOrder = async (req, res) => {
+const completeOrder = async (req, res) => {
     try {
         const orderId = req.params.orderId;
         const order = await Order.findOne({ _id: orderId, userId: req.userId });
+        console.log("here come")
 
         if (!order) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 success: false,
                 error: 'Order not found'
             });
@@ -54,15 +55,20 @@ exports.completeOrder = async (req, res) => {
         order.paymentStatus = "completed";
         await order.save();
 
-        res.json({ 
+        res.json({
             success: true,
             message: 'Order marked as completed',
-            order 
+            order
         });
     } catch (error) {
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             error: 'Failed to update order status'
         });
     }
 };
+
+module.exports = {
+    completeOrder,
+    myOrders
+}

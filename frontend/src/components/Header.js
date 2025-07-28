@@ -108,7 +108,7 @@ const Header = () => {
 
         {/* User / Cart / Notification / Logout */}
         <div className="flex items-center gap-6">
-          {user?._id && (
+          {user?._id && user?.role === 'GENERAL' &&(
             <div>
               <Link to={`/seller-signup/${user._id}`}>
                 <button className='px-3 py-1 rounded-full text-white bg-green-500 hover:bg-green-700'>
@@ -117,9 +117,18 @@ const Header = () => {
               </Link>
             </div>
           )}
+          {user?._id && user?.role === 'SELLER' && user?.status ==='PENDING' &&(
+            <div>
+              <Link to={`/check-status/${user.status}`}>
+                <button className='px-3 py-1 rounded-full text-white bg-green-500 hover:bg-green-700'>
+                  Check My Status
+                </button>
+              </Link>
+            </div>
+          )}
 
           {/* Notification Bell */}
-          {user?._id && (
+          {user?._id && user?.role === 'SELLER'&& (
             <div className="relative">
               <Link to="/notifications" className="relative inline-flex items-center">
                 {/* Notification Icon with hover effect */}

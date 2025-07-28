@@ -71,7 +71,7 @@ const SellerSignup = () => {
 
             if (dataApi.success) {
                 toast.success(dataApi.message)
-                navigate('/seller-pannel/all-products')
+                navigate('/')
 
             }
             if (dataApi.error) {

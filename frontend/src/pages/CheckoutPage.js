@@ -8,6 +8,7 @@ import summaryApi from '../common/index';
 
 const CheckoutPage = () => {
   const [cartData, setCartData] = useState([]);
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [codLoading, setCodLoading] = useState(false);
@@ -67,13 +68,35 @@ const CheckoutPage = () => {
   const total = subtotal + shipping;
 
   // Handle input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setShippingInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+ const handleInputChange = (e) => {
+  const { name, value } = e.target;
+
+  // Set the value
+  setShippingInfo(prev => ({
+    ...prev,
+    [name]: value
+  }));
+
+  // Add validation
+  setErrors(prevErrors => {
+    const newErrors = { ...prevErrors };
+
+    if (name === 'fullName') {
+      newErrors.fullName = /\d/.test(value) ? 'Full name must not contain numbers' : '';
+    }
+
+    if (name === 'email') {
+      newErrors.email = /^\d/.test(value) ? 'Email should not start with a number' : '';
+    }
+
+    if (name === 'phone') {
+      newErrors.phone = /[a-zA-Z]/.test(value) ? 'Phone number must not contain letters' : '';
+    }
+
+    return newErrors;
+  });
+};
+
 
   // Validate form
   const validateForm = () => {
@@ -360,6 +383,7 @@ const CheckoutPage = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Enter your full name"
                 />
+                {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -375,7 +399,9 @@ const CheckoutPage = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="Enter your email"
                   />
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Phone *
@@ -388,6 +414,7 @@ const CheckoutPage = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="Enter your phone number"
                   />
+                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                 </div>
               </div>
 

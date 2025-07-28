@@ -109,9 +109,10 @@ const MyOrders = () => {
                                         <p className="text-sm text-gray-500">
                                             Qty: {item.quantity} × Rs. {item.price}
                                         </p>
+                                       
                                         {user?.role === 'SELLER' && (
-                                            <p className="text-xs text-gray-400">
-                                                Buyer: {order.shippingInfo?.fullName || 'N/A'}
+                                            <p className="text-xs text-gray-400"> 
+                                                Buyer: {order.shippingInfo?.fullName }
                                             </p>
                                         )}
                                     </div>

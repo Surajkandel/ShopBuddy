@@ -25,6 +25,7 @@ import PaymentFailure from '../pages/PaymentFailure';
 import ViewReview from '../pages/ViewReview';
 import WriteReview from '../pages/WriteReview';
 import MyOrdersPage from '../pages/MyOrders';
+import CheckStatus from '../components/CheckStatus';
 
 const router = createBrowserRouter([
   {
@@ -115,6 +116,11 @@ const router = createBrowserRouter([
       {
         path:'myorders',
         element : <MyOrdersPage/>
+
+      },
+      {
+        path: '/check-status/:status',
+        element: <CheckStatus />
 
       },
 

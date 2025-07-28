@@ -1,14 +1,12 @@
-import Review from '../models/reviewModel.js';
-import Product from '../models/productModel.js';
+// controllers/reviewController.js
+const Review = require('../models/reviewModel');
+const Product = require('../models/productModel');
 
 // ✅ Create a new review
-export const createReview = async (req, res) => {
+const createReview = async (req, res) => {
   try {
     const { productId, rating, comment } = req.body;
     const userId = req.userId; // ✅ extracted from token in middleware
-
-    // console.log("📦 Product ID:", productId);
-    // console.log("👤 User ID from token:", userId);
 
     // Check if product exists
     const product = await Product.findById(productId);
@@ -47,7 +45,7 @@ export const createReview = async (req, res) => {
 };
 
 // ✅ Get all reviews for a product
-export const getProductReviews = async (req, res) => {
+const getProductReviews = async (req, res) => {
   try {
     const { productId } = req.params;
 
@@ -75,4 +73,9 @@ const updateProductRating = async (productId) => {
       reviewCount: reviews.length
     });
   }
+};
+
+module.exports = {
+  createReview,
+  getProductReviews
 };

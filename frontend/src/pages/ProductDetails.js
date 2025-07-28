@@ -20,17 +20,17 @@ const ProductDetails = () => {
   const navigate = useNavigate();
 
   // Calculate average rating and total reviews
-  const averageRating = reviews.length > 0 
-    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
     : 0;
   const totalReviews = reviews.length;
 
-  const handleAddToCart = async(e, id) => {
+  const handleAddToCart = async (e, id) => {
     await addToCart(e, id);
     fetchUserAddToCart();
   };
 
-  const handleBuyProduct = async(e, id) => {
+  const handleBuyProduct = async (e, id) => {
     await addToCart(e, id);
     fetchUserAddToCart();
     navigate('/checkoutPage');
@@ -40,7 +40,7 @@ const ProductDetails = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch product details
         const productResponse = await fetch(`${summaryApi.productDetails.url}/${productId}`);
         const productData = await productResponse.json();
@@ -138,7 +138,7 @@ const ProductDetails = () => {
             Brand: <span className="text-gray-800">{product.brandName}</span>
           </p>
 
-           <div className="mb-2">
+          <div className="mb-2">
             <p className="text-sm font-medium">
               Availability: {renderStockStatus()}
             </p>
@@ -199,19 +199,31 @@ const ProductDetails = () => {
           </div>
 
           <div className="mt-auto flex gap-4">
-            <button 
-              onClick={(e) => handleAddToCart(e, product?._id)}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base px-4 py-2 rounded-md transition"
-            >
-              Add to Cart
-            </button>
-            <button 
-              onClick={(e) => handleBuyProduct(e, product?._id)}
-              className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-100 text-sm sm:text-base px-4 py-2 rounded-md transition"
-            >
-              Buy Now
-            </button>
+            {product?.stock > 0 ? (
+              <>
+                <button
+                  onClick={(e) => handleAddToCart(e, product?._id)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base px-4 py-2 rounded-md transition"
+                >
+                  Add to Cart
+                </button>
+                <button
+                  onClick={(e) => handleBuyProduct(e, product?._id)}
+                  className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-100 text-sm sm:text-base px-4 py-2 rounded-md transition"
+                >
+                  Buy Now
+                </button>
+              </>
+            ) : (
+              <button
+                disabled
+                className="w-full bg-gray-400 text-white text-sm sm:text-base px-4 py-2 rounded-md cursor-not-allowed"
+              >
+                Out of Stock
+              </button>
+            )}
           </div>
+
         </div>
       </div>
 

@@ -1,14 +1,15 @@
-import mongoose from 'mongoose';
+// models/Review.js
+const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'product',
+    ref: 'Product',
     required: true
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
+    ref: 'User',
     required: true
   },
   rating: {
@@ -29,4 +30,4 @@ const reviewSchema = new mongoose.Schema({
 
 const Review = mongoose.model('Review', reviewSchema);
 
-export default Review;
+module.exports = Review;
