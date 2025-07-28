@@ -24,6 +24,7 @@ import PaymentSuccess from '../pages/PaymentSuccess';
 import PaymentFailure from '../pages/PaymentFailure';
 import ViewReview from '../pages/ViewReview';
 import WriteReview from '../pages/WriteReview';
+import MyOrdersPage from '../pages/MyOrders';
 
 const router = createBrowserRouter([
   {
@@ -110,6 +111,11 @@ const router = createBrowserRouter([
       {
         path: 'payment/failure',
         element: <PaymentFailure />,
+      },
+      {
+        path:'myorders',
+        element : <MyOrdersPage/>
+
       },
 
       {

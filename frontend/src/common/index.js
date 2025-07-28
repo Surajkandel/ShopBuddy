@@ -82,8 +82,8 @@ const summaryApi = {
         url: `${backendDomain}/api/update-cart-product`,
         method: 'post'
     },
-    clearCart:{
-         url: `${backendDomain}/api/cart/clear`,
+    clearCart: {
+        url: `${backendDomain}/api/cart/clear`,
         method: 'delete'
 
 
@@ -122,21 +122,29 @@ const summaryApi = {
     getProductReviews: {
         url: `${backendDomain}/api/viewreview`,
         method: "GET"
-    }, 
+    },
     stockUpdate: {
         url: `${backendDomain}/api/updateproductstock`,
         method: "post"
-    }, 
+    },
     notifySeller: {
         url: `${backendDomain}/api/notifyseller`,
         method: "post"
     },
-    verifyEsewaPayment :{
+    verifyEsewaPayment: {
         url: `${backendDomain}/api/payment/esewa/verify`,
         method: "get"
+    },
+    myOrders: {
+        url: `${backendDomain}/api/order/myorders`,
+        method: "get"
+    },
+    completeOrder: {
+        url: `${backendDomain}/api/order/completeorder`,
+        method: "put"
     }
 
-    
+
 
 
 

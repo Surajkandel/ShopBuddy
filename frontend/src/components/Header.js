@@ -155,7 +155,7 @@ const Header = () => {
 
           {/* User Profile */}
           <div>
-            <Link to="./update-details">
+            <Link to="./myorders">
               <FaRegUserCircle className='text-2xl cursor-pointer' />
             </Link>
           </div>

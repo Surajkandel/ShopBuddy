@@ -40,6 +40,7 @@ const { createReview, getProductReviews } = require('../controller/reviewControl
 const checkSellerStatus = require('../middleware/checkSellerStatus')
 const notifySeller = require('../controller/notifySeller')
 const stockUpdate = require('../controller/stockUpdate')
+const { myOrders, completeOrder } = require('../controller/seeOrders');
 
 // User authentication routes
 router.post('/signup', userSignUpController)
@@ -72,6 +73,8 @@ router.delete("/cart/clear",  authToken, clearCart)
 // Order routes
 router.post("/order/create", authToken, createOrder)
 router.get("/order/user-orders", authToken, getUserOrders)
+router.get('/order/myorders', authToken, myOrders);
+router.put('/order/completeorder/:orderId', authToken, completeOrder);
 
 // Payment routes (eSewa)
 router.post("/payment/esewa/initiate", authToken, initiateEsewaPayment)
