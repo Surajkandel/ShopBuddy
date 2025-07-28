@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import SummaryApi from '../common';
 import { Link } from 'react-router-dom';
+import RecommendationSection from './RecommendationSection'; // ✅ Importing RecommendationSection
 
 
 const CategoryWiseProduct = () => {
@@ -35,7 +36,7 @@ const CategoryWiseProduct = () => {
     fetchCategoryProduct();
   }, []);
 
-  return (
+  return (<>       
     <div className="container mx-auto px-3 sm:px-4 py-4">
       <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-4 sm:mb-6 pb-2 border-b border-gray-200">
         Shop by Categories
@@ -80,6 +81,9 @@ const CategoryWiseProduct = () => {
         </div>
       )}
     </div>
+    <RecommendationSection></RecommendationSection>
+    </>
+
   );
 };
 

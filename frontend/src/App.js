@@ -9,7 +9,7 @@ import summaryApi from './common';
 import Context from './context';
 import { useDispatch } from 'react-redux';
 import { setUserDetails } from './store/userSlice';
-
+import RecommendationSection from './components/RecommendationSection';
 function App() {
   const dispatch = useDispatch();
   const [cartProductCount, setCartProductCount] = useState(0);
@@ -60,8 +60,11 @@ function App() {
       />
       <Header />
       <main className="pt-16">
+        
         <Outlet />
+     
       </main>
+      
       <Footer />
     </Context.Provider>
   );
