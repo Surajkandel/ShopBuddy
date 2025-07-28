@@ -1,38 +1,25 @@
-import Review from '../models/reviewModel.js';
-import Product from '../models/productModel.js';
+const Review = require('../models/reviewModel');
+const Product = require('../models/productModel');
 
 // ✅ Create a new review
-export const createReview = async (req, res) => {
+const createReview = async (req, res) => {
   try {
     const { productId, rating, comment } = req.body;
-    const userId = req.userId; // ✅ extracted from token in middleware
+    const userId = req.userId;
 
-    // console.log("📦 Product ID:", productId);
-    // console.log("👤 User ID from token:", userId);
-
-    // Check if product exists
     const product = await Product.findById(productId);
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    // Check if user already reviewed the product
     const existingReview = await Review.findOne({ productId, userId });
     if (existingReview) {
       return res.status(400).json({ success: false, message: 'You have already reviewed this product' });
     }
 
-    // Create new review
-    const review = new Review({
-      productId,
-      userId,
-      rating,
-      comment
-    });
-
+    const review = new Review({ productId, userId, rating, comment });
     await review.save();
 
-    // Update average rating and review count on the product
     await updateProductRating(productId);
 
     res.status(201).json({
@@ -47,13 +34,13 @@ export const createReview = async (req, res) => {
 };
 
 // ✅ Get all reviews for a product
-export const getProductReviews = async (req, res) => {
+const getProductReviews = async (req, res) => {
   try {
     const { productId } = req.params;
 
     const reviews = await Review.find({ productId })
-      .populate('userId', 'name email') // Show user info
-      .sort({ createdAt: -1 }); // Newest first
+      .populate('userId', 'name email')
+      .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, data: reviews });
   } catch (error) {
@@ -62,7 +49,7 @@ export const getProductReviews = async (req, res) => {
   }
 };
 
-// ✅ Helper: update product's average rating
+// ✅ Helper
 const updateProductRating = async (productId) => {
   const reviews = await Review.find({ productId });
 
@@ -75,4 +62,9 @@ const updateProductRating = async (productId) => {
       reviewCount: reviews.length
     });
   }
+};
+
+module.exports = {
+  createReview,
+  getProductReviews
 };

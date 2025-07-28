@@ -18,6 +18,10 @@ import Cart from '../pages/Cart';
 import SearchProduct from '../pages/SearchProduct';
 import Notifications from '../pages/Notification'
 
+
+//recomm
+import Recommendation from '../components/Recommendation';// Importing the ProductRecommendations component
+
 // ✅ NEW IMPORTS
 import CheckoutPage from '../pages/CheckoutPage';
 import PaymentSuccess from '../pages/PaymentSuccess';
@@ -90,6 +94,11 @@ const router = createBrowserRouter([
         path: 'product-category/:categoryName',
         element: <CategoryProduct />,
       },
+      {
+        path: 'recommendation',
+        element: <Recommendation/>,
+      },
+     
       {
         path: 'product/:productId',
         element: <ProductDetails />,

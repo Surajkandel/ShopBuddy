@@ -30,6 +30,10 @@ const CategoryWiseProduct = () => {
       setLoading(false);
     }
   };
+  const handleGetRecommendations = () => {
+    // Navigate to the recommendations page
+    window.location.href = '/recommendation';
+  };
 
   useEffect(() => {
     fetchCategoryProduct();
@@ -40,6 +44,14 @@ const CategoryWiseProduct = () => {
       <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-4 sm:mb-6 pb-2 border-b border-gray-200">
         Shop by Categories
       </h1>
+    
+        <button 
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200"
+          onClick={handleGetRecommendations}
+        >
+          Get Recommendations
+        </button>
+     
 
       {loading ? (
         <div className="text-center py-6 sm:py-8">
