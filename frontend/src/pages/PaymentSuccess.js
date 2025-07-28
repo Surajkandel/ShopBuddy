@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Context from '../context';
 import displayNEPCurrency from '../helpers/displayCurrency';
-import { verifyEsewaPayment, clearCart } from '../api/paymentApi';
+import summaryApi from '../common';
 
 const PaymentSuccess = () => {
   const [paymentStatus, setPaymentStatus] = useState('verifying');
@@ -14,66 +14,81 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
   const context = useContext(Context);
 
- useEffect(() => {
-  const verifyPayment = async () => {
-    try {
-      const encodedData = searchParams.get('data');
+  useEffect(() => {
+    const verifyPayment = async () => {
+      try {
+        const encodedData = searchParams.get('data');
 
-      if (!encodedData) {
-        setError('Missing payment data');
+        if (!encodedData) {
+          setError('Missing payment data');
+          setPaymentStatus('failed');
+          return;
+        }
+
+        // Decode Base64 string and parse JSON
+        const decodedString = atob(encodedData);
+        const parsedData = JSON.parse(decodedString);
+
+        const transactionUuid = parsedData.transaction_uuid;
+        const amount = parsedData.total_amount;
+        const status = parsedData.status;
+
+        console.log("Decoded:", parsedData);
+
+        if (!transactionUuid || status !== "COMPLETE") {
+          setError('Invalid or incomplete payment data');
+          setPaymentStatus('failed');
+          return;
+        }
+
+        const response = await fetch(summaryApi.verifyEsewaPayment.url + `?oid=${transactionUuid}`, {
+          method: summaryApi.verifyEsewaPayment.method,
+          credentials: 'include'
+        });
+        const result = await response.json();
+
+        console.log("result is ", result)
+
+        if (result.success) {
+          setPaymentStatus('success');
+          setPaymentData(result.payment);
+          setOrderData(result.order);
+
+          // Clear cart
+          await fetch(summaryApi.clearCart.url, {
+            method: summaryApi.clearCart.method,
+            credentials: 'include'
+          });
+
+          await fetch(summaryApi.stockUpdate.url, {
+            method: summaryApi.stockUpdate.method,
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              items: result.order.items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity
+              }))
+            }),
+          });
+
+          context.fetchUserAddToCart();
+          toast.success('Payment completed successfully!');
+        } else {
+          setPaymentStatus('failed');
+          setError(result.message || 'Payment verification failed');
+        }
+      } catch (error) {
+        console.error('Verification error:', error);
         setPaymentStatus('failed');
-        return;
+        setError('Payment verification failed');
       }
+    };
 
-      // Decode Base64 string and parse JSON
-      const decodedString = atob(encodedData);
-      const parsedData = JSON.parse(decodedString);
-
-      const transactionUuid = parsedData.transaction_uuid;
-      const amount = parsedData.total_amount;
-      const status = parsedData.status;
-
-      console.log("Decoded:", parsedData);
-
-      if (!transactionUuid || status !== "COMPLETE") {
-        setError('Invalid or incomplete payment data');
-        setPaymentStatus('failed');
-        return;
-      }
-
-      const result = await verifyEsewaPayment(transactionUuid);
-      
-
-      if (result.success) {
-        setPaymentStatus('success');
-        setPaymentData(result.payment);
-        setOrderData(result.order);
-        await clearCart();
-        context.fetchUserAddToCart();
-        toast.success('Payment completed successfully!');
-      } else {
-        setPaymentStatus('failed');
-        setError(result.message || 'Payment verification failed');
-      }
-    } catch (error) {
-      console.error('Verification error:', error);
-      setPaymentStatus('failed');
-      setError('Payment verification failed');
-    }
-  };
-
-  verifyPayment();
-}, [searchParams, context]);
-
-
-  const clearCart = async () => {
-    try {
-      const { clearCart } = await import('../api/paymentApi');
-      await clearCart();
-    } catch (error) {
-      console.error('Failed to clear cart:', error);
-    }
-  };
+    verifyPayment();
+  }, [searchParams, context]);
 
   if (paymentStatus === 'verifying') {
     return (
@@ -191,7 +206,7 @@ const PaymentSuccess = () => {
                   View My Orders
                 </button>
                 <button
-                  onClick={() => navigate('/products')}
+                  onClick={() => navigate('/')}
                   className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-md font-medium hover:bg-gray-50 transition duration-150"
                 >
                   Continue Shopping

@@ -3,7 +3,7 @@ const productModel = require("../models/productModel")
 
 async function AddProductController(req, res) {
     try {
-        console.log("inside add product")
+        // console.log("inside add product")
         const sessionUserId = req.userId
 
 

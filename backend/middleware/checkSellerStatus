@@ -2,11 +2,11 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel'); 
 
 async function checkSellerStatus(req, res, next) {
-  console.log("🔐 checkSellerStatus middleware called");
+  // console.log("🔐 checkSellerStatus middleware called");
 
   try {
     const token = req.cookies?.token;
-    console.log("Received token:", token);
+    // console.log("Received token:", token);
 
     if (!token) {
       return res.status(401).json({

@@ -2,7 +2,7 @@ const Cart = require('../models/cartProduct');
 async function clearCart(req, res) {
   try {
     const userId = req.userId;
-    console.log("user id is ", userId)
+    // console.log("user id is ", userId)
 
    const deletedproduct = await Cart.deleteMany({ userId });
     if (!deletedproduct) {

@@ -1,3 +1,5 @@
+
+
 const backendDomain = "http://localhost:8080"
 
 const summaryApi = {
@@ -128,7 +130,12 @@ const summaryApi = {
     notifySeller: {
         url: `${backendDomain}/api/notifyseller`,
         method: "post"
+    },
+    verifyEsewaPayment :{
+        url: `${backendDomain}/api/payment/esewa/verify`,
+        method: "get"
     }
+
     
 
 

@@ -7,8 +7,8 @@ export const createReview = async (req, res) => {
     const { productId, rating, comment } = req.body;
     const userId = req.userId; // ✅ extracted from token in middleware
 
-    console.log("📦 Product ID:", productId);
-    console.log("👤 User ID from token:", userId);
+    // console.log("📦 Product ID:", productId);
+    // console.log("👤 User ID from token:", userId);
 
     // Check if product exists
     const product = await Product.findById(productId);

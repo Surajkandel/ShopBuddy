@@ -5,7 +5,7 @@ const Notification = require("../models/notificationModel")
 const stockUpdate = async (req, res) => {
   try {
     const { items } = req.body;
-    console.log("items is ", items)
+    // console.log("items is ", items)
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
