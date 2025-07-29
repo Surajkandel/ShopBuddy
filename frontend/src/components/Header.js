@@ -40,7 +40,7 @@ const Header = () => {
     if (searchValue.trim()) {
       navigate(`/search?q=${searchValue.trim()}`);
     } else {
-      navigate(`/search`);
+      navigate(`/recommendation`);
     }
   };
 

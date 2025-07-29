@@ -26,6 +26,7 @@ import ViewReview from '../pages/ViewReview';
 import WriteReview from '../pages/WriteReview';
 import MyOrdersPage from '../pages/MyOrders';
 import CheckStatus from '../components/CheckStatus';
+import Recommendation from '../components/Recommendation';
 
 const router = createBrowserRouter([
   {
@@ -137,6 +138,10 @@ const router = createBrowserRouter([
             element: <AllProducts />,
           },
         ],
+      },
+      {
+        path: 'recommendation',
+        element: <Recommendation/>
       },
       {
         path: 'user-pannel',
