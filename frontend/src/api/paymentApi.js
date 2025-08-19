@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const backendDomain = "http://localhost:8080"; // adjust for production
+const backendDomain=process.env.REACT_APP_API_URL
 
 // Create order before payment
 export const createOrder = async (orderData) => {
