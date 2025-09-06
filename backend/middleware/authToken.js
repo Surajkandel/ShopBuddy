@@ -1,16 +1,24 @@
-console.log("authToken middleware called");
 const jwt = require('jsonwebtoken');
 
 async function authToken(req, res, next) {
   try {
-    const token = req.cookies?.token;
-    // console.log("Received token:", req.cookies?.token);
-    console.log("authToken middleware called");
-     console.log("Received token:fee", token); 
+    // Try to get token from cookies first
+    let token = req.cookies?.token;
+    
+    // If not in cookies, check Authorization header
+    if (!token && req.headers.authorization) {
+      const authHeader = req.headers.authorization;
+      if (authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    console.log("AuthToken middleware called");
+    console.log("Received token:", token ? "Present" : "Missing");
 
     if (!token) {
       return res.status(401).json({
-        message: "User is not logged indee",
+        message: "User is not logged in",
         error: true,
         success: false,
       });
@@ -30,8 +38,9 @@ async function authToken(req, res, next) {
       next(); 
     });
   } catch (err) {
+    console.error("AuthToken error:", err.message);
     res.status(500).json({
-      message: err.message || "Authentication error",
+      message: "Internal server error",
       error: true,
       success: false,
     });

@@ -7,17 +7,29 @@ async function userSignInController(req, res) {
         const { email, password } = req.body
 
         if (!email) {
-            throw new Error("Please provide email")
+            return res.status(400).json({
+                message: "Please provide email",
+                error: true,
+                success: false
+            })
         }
 
         if (!password) {
-            throw new Error("Please provide password")
+            return res.status(400).json({
+                message: "Please provide password",
+                error: true,
+                success: false
+            })
         }
 
         const user = await userModel.findOne({ email })
 
         if (!user) {
-            throw new Error("User not found")
+            return res.status(404).json({
+                message: "User not found",
+                error: true,
+                success: false
+            })
         }
 
         const checkPassword = await bcrypt.compare(password, user.password)
@@ -28,42 +40,50 @@ async function userSignInController(req, res) {
                 email: user.email,
             }
 
-            const token = await jwt.sign(
+            const token = jwt.sign(
                 tokenData, 
                 process.env.TOKEN_SECRET_KEY, 
                 { expiresIn: '10h' }
             );
 
             // Configure cookie options for production vs development
+            const isProduction = process.env.NODE_ENV === 'production';
             const tokenOption = {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                maxAge: 24 * 60 * 60 * 1000 // 1 day
+                secure: isProduction,
+                sameSite: isProduction ? 'none' : 'lax',
+                maxAge: 24 * 60 * 60 * 1000, // 1 day
+                domain: isProduction ? '.vercel.app' : undefined
             }
 
             res.cookie("token", token, tokenOption).json({
-                message: "Login successfully",
+                message: "Login successful",
                 data: {
                     token: token,
                     role: user.role,
-                    status: user.status
+                    status: user.status,
+                    userId: user._id
                 },
                 success: true,
                 error: false
             })
 
         } else {
-            throw new Error("Password does not match")
+            return res.status(401).json({
+                message: "Password does not match",
+                error: true,
+                success: false
+            })
         }
 
     } catch (err) {
-        res.status(400).json({
-            message: err.message,
+        console.error("SignIn error:", err.message);
+        res.status(500).json({
+            message: "Internal server error",
             error: true,
             success: false
         })
     }
 }
 
-module.exports = userSignInController
+module.exports = userSignInController;
