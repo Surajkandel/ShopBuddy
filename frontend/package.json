@@ -26,12 +26,12 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "npm run tailwind:build && craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
     "tailwind:build": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --minify",
-    "tailwind:watch": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --watch --minify",
-    "dev": "npm run tailwind:watch & craco start"
+    "tailwind:watch": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/output.css --watch",
+    "dev": "concurrently \"npm run tailwind:watch\" \"craco start\""
   },
   "eslintConfig": {
     "extends": [
