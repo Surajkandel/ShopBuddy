@@ -54,6 +54,7 @@ async function userSignInController(req, res) {
                 sameSite: isProduction ? 'None' : 'lax',
                 maxAge: 24 * 60 * 60 * 1000, // 1 day
                 // domain: isProduction ? '.vercel.app' : undefined
+                path:"/"
             }
 
             res.cookie("token", token, tokenOption).json({
