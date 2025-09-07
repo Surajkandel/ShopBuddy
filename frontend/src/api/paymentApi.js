@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const backendDomain = "http://localhost:8080"; // adjust for production
+const backendDomain = process.env.NODE_ENV === 'production' 
+  ? 'https://shopbuddy-rcjv.onrender.com'
+  : 'http://localhost:8080';
 
 // Create order before payment
 export const createOrder = async (orderData) => {
