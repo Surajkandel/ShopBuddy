@@ -17,7 +17,10 @@ function App() {
   const fetchUserDetails = async () => {
     const response = await fetch(summaryApi.current_user.url, {
       method: summaryApi.current_user.method,
-      credentials: 'include',
+      credentials: "include",
+      headers: {
+    "Content-Type": "application/json"
+  },
     });
     const data = await response.json();
     if (data.success) {
@@ -28,7 +31,10 @@ function App() {
   const fetchUserAddToCart = async () => {
     const response = await fetch(summaryApi.countAddToCartProduct.url, {
       method: summaryApi.countAddToCartProduct.method,
-      credentials: 'include',
+      credentials: "include",
+      headers: {
+    "Content-Type": "application/json"
+  },
     });
     const data = await response.json();
     setCartProductCount(data?.data?.count || 0);

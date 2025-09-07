@@ -51,9 +51,9 @@ async function userSignInController(req, res) {
             const tokenOption = {
                 httpOnly: true,
                 secure: isProduction,
-                sameSite: isProduction ? 'none' : 'lax',
+                sameSite: isProduction ? 'None' : 'lax',
                 maxAge: 24 * 60 * 60 * 1000, // 1 day
-                domain: isProduction ? '.vercel.app' : undefined
+                // domain: isProduction ? '.vercel.app' : undefined
             }
 
             res.cookie("token", token, tokenOption).json({
